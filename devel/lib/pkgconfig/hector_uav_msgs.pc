@@ -1,0 +1,8 @@
+prefix=/home/john/Desktop/project/hector-moveit/devel
+
+Name: hector_uav_msgs
+Description: Description of hector_uav_msgs
+Version: 0.3.5
+Cflags: -I/home/john/Desktop/project/hector-moveit/devel/include -I/home/john/Desktop/project/hector-moveit/src/hector_quadrotor/hector_uav_msgs/include
+Libs: -L${prefix}/lib 
+Requires: message_runtime std_msgs

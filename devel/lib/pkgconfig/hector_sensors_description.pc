@@ -1,0 +1,8 @@
+prefix=/home/john/Desktop/project/hector-moveit/devel
+
+Name: hector_sensors_description
+Description: Description of hector_sensors_description
+Version: 0.5.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

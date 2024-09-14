@@ -1,0 +1,8 @@
+prefix=/home/john/Desktop/project/hector-moveit/devel
+
+Name: hector_quadrotor_model
+Description: Description of hector_quadrotor_model
+Version: 0.3.5
+Cflags: -I/home/john/Desktop/project/hector-moveit/src/hector_quadrotor/hector_quadrotor_model/include -I/usr/include
+Libs: -L${prefix}/lib -lhector_quadrotor_propulsion -lhector_quadrotor_aerodynamics /usr/lib/aarch64-linux-gnu/libboost_thread.so /usr/lib/aarch64-linux-gnu/libboost_chrono.so /usr/lib/aarch64-linux-gnu/libboost_system.so /usr/lib/aarch64-linux-gnu/libboost_date_time.so /usr/lib/aarch64-linux-gnu/libboost_atomic.so /usr/lib/aarch64-linux-gnu/libpthread.so
+Requires: geometry_msgs hector_uav_msgs roscpp
