@@ -23,10 +23,8 @@ Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("/action/trajector
 
     move_group->setPlannerId("RRTConnectkConfigDefault");
     move_group->setNumPlanningAttempts(10);
-    move_group->setWorkspace(0, 0, 0, 20, 20, 20);
-  //  move_group->set
+    move_group->setWorkspace(XMIN, YMIN, ZMIN, XMAX, YMAX, ZMAX);
 
- //   move_group->getRobotModel().get
     start_state.reset(new robot_state::RobotState(move_group->getRobotModel()));
     planning_scene.reset(new planning_scene::PlanningScene(kmodel));
 

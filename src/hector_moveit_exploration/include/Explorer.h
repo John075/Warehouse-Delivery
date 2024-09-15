@@ -27,11 +27,11 @@
 #include <cmath>
 #include <queue>
 #define XMIN -24.5
-#define XMAX 24.5
+#define XMAX 25.0
 #define YMIN -16
-#define YMAX 25
+#define YMAX 25.0
 #define ZMIN 0.2
-#define ZMAX 20.0
+#define ZMAX 25.0
 
 #define EPSILON 1e-4
 
