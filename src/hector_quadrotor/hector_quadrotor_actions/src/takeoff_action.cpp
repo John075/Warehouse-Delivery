@@ -44,7 +44,7 @@ public:
         pose_client_(nh, "action/pose")
   {
     nh.param<double>("action_frequency", frequency_, 10.0);
-    nh.param<double>("takeoff_height", takeoff_height_, 0.3);
+    nh.param<double>("takeoff_height", takeoff_height_, 8.13);
     nh.param<double>("connection_timeout", connection_timeout_, 10.0);
     nh.param<double>("action_timout", action_timeout_, 30.0);
 
