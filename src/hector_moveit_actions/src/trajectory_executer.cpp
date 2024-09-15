@@ -33,12 +33,13 @@ class TrajectoryActionController{
         geometry_msgs::Twist empty,cmd;
         std::vector<geometry_msgs::Pose> trajectory;
         geometry_msgs::Pose last_pose;
+        int counter;
        
         Feedback feedback_;
         Result result_;
         bool success, executing;
     public:
-        TrajectoryActionController(std::string name) : action_name(name), 
+        TrajectoryActionController(std::string name) : counter(0), action_name(name),
             server_(nh_,name,boost::bind(&TrajectoryActionController::executeCB,this,_1),false),
             orientation_client_("/action/pose",true){
                 orientation_client_.waitForServer();
@@ -202,6 +203,10 @@ class TrajectoryActionController{
         }
         void poseCallback(const nav_msgs::Odometry::ConstPtr & msg)
         {
+            if(counter == 0) {
+                ROS_INFO("FIRST CALLBACK POSE: %lf", msg->pose.pose.position.z);
+                counter = counter + 1;
+            }
             last_pose = msg->pose.pose;
         }
 

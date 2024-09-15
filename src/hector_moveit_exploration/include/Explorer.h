@@ -29,9 +29,9 @@
 #define XMIN -24.5
 #define XMAX 24.5
 #define YMIN -16
-#define YMAX 16
+#define YMAX 25
 #define ZMIN 0.2
-#define ZMAX 4.0
+#define ZMAX 20.0
 
 #define EPSILON 1e-4
 
@@ -61,7 +61,7 @@ class Quadrotor{
         actionlib::SimpleActionClient<hector_moveit_actions::ExecuteDroneTrajectoryAction> trajectory_client;
         std::unique_ptr<robot_state::RobotState> start_state;
         std::unique_ptr<planning_scene::PlanningScene> planning_scene;
-        const double takeoff_altitude = 1.0;
+        const double takeoff_altitude = 9;
         int GRID;
         bool odom_received,trajectory_received;
         bool isPathValid;

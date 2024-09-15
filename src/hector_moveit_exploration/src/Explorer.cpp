@@ -23,8 +23,10 @@ Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("/action/trajector
 
     move_group->setPlannerId("RRTConnectkConfigDefault");
     move_group->setNumPlanningAttempts(10);
-    move_group->setWorkspace(XMIN, YMIN, ZMIN, XMAX, YMAX, ZMAX);
+    move_group->setWorkspace(0, 0, 0, 20, 20, 20);
+  //  move_group->set
 
+ //   move_group->getRobotModel().get
     start_state.reset(new robot_state::RobotState(move_group->getRobotModel()));
     planning_scene.reset(new planning_scene::PlanningScene(kmodel));
 
@@ -129,24 +131,6 @@ double Quadrotor::countFreeVolume(const octomap::OcTree *octree) {
     return known * 100.0 / (float) (unknown + known);
 }
 
-
-void Quadrotor::findFrontier() {
-    //ROS_INFO("Looking for frontiers");
-
-    ros::spinOnce();
-
-    geometry_msgs::Pose p;
-    p.position.x = odometry_information.position.x;
-    p.position.y = odometry_information.position.y;
-    p.position.z = odometry_information.position.z + 3;
-    p.orientation.w = odometry_information.orientation.w;
-    double dist = sqrt(pow(p.position.x - odometry_information.position.x, 2) +
-                       pow(p.position.y - odometry_information.position.y, 2) +
-                       pow(p.position.z - odometry_information.position.z, 2));
-
-    frontiers.push({dist, p});
-}
-
 bool Quadrotor::go(geometry_msgs::Pose &target_) {
     std::vector<double> target(7);
     target[0] = target_.position.x;
@@ -244,11 +228,22 @@ void Quadrotor::takeoff() {
 
 void Quadrotor::run() {
     ros::Rate rate(2);
+    geometry_msgs::Pose p;
+    p.position.x = odometry_information.position.x;
+    p.position.y = odometry_information.position.y + 1;
+    p.position.z = odometry_information.position.z + 2;
+    p.orientation = odometry_information.orientation;
+    double dist = sqrt(pow(p.position.x - odometry_information.position.x, 2) +
+                       pow(p.position.y - odometry_information.position.y, 2) +
+                       pow(p.position.z - odometry_information.position.z, 2));
+
+    frontiers.push({dist, p});
+
+
     while (ros::ok()) {
         while (!odom_received)
             rate.sleep();
         bool success = false;
-        findFrontier();
 
         do {
             if (frontiers.empty()) break;
