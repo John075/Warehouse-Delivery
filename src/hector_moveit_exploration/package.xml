@@ -18,6 +18,8 @@
   <depend>std_msgs</depend>
   <depend>octomap</depend>
   <depend>hector_moveit_actions</depend>
+  <depend>gazebo_ros_link_attacher</depend>
+  <depend>actionlib</depend>
   <export>
 
   </export>

@@ -19,6 +19,7 @@
 #include <actionlib/client/simple_client_goal_state.h>
 #include <hector_uav_msgs/EnableMotors.h>
 #include <hector_moveit_actions/ExecuteDroneTrajectoryAction.h>
+#include <gazebo_ros_link_attacher/Attach.h>
 
 #include <octomap/OcTree.h>
 
@@ -79,6 +80,7 @@ class Quadrotor{
         ros::Publisher gui_ack,rate_ack;
         ros::ServiceClient motor_enable_service; 
         ros::ServiceClient planning_scene_service;
+        ros::ServiceClient attach_service;
 
         moveit_msgs::RobotState plan_start_state;
         moveit_msgs::RobotTrajectory plan_trajectory;
