@@ -1,5 +1,6 @@
 #include <Explorer.h>
 
+
 Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("/action/trajectory", true) {
     trajectory_client.waitForServer();
     odom_received = false;
@@ -11,6 +12,8 @@ Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("/action/trajector
     base_sub = nh.subscribe<nav_msgs::Odometry>("/ground_truth/state", 10, &Quadrotor::poseCallback, this);
     plan_sub = nh.subscribe<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1,
                                                             &Quadrotor::planCallback, this);
+
+    attach_service = nh.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/attach");
 
     gui_ack = nh.advertise<geometry_msgs::Point>("/orchard_grid_filler", 10);
     rate_ack = nh.advertise<std_msgs::Float64>("/orchard_exploration_rate", 1);
@@ -235,35 +238,38 @@ void Quadrotor::run() {
                        pow(p.position.y - odometry_information.position.y, 2) +
                        pow(p.position.z - odometry_information.position.z, 2));
 
-    frontiers.push({dist, p});
+    go(p);
 
+    // Log the message about the models being attached
+    ROS_INFO("Attaching cube1 and cube2");
 
-    while (ros::ok()) {
-        while (!odom_received)
-            rate.sleep();
-        bool success = false;
+    // Wait for the service to be available
+    ros::service::waitForService("/link_attacher_node/attach");
 
-        do {
-            if (frontiers.empty()) break;
-            geometry_msgs::Pose _goal = frontiers.front().second;
-            frontiers.pop();
+    // Create a service request and response object
+    gazebo_ros_link_attacher::Attach srv;
+    srv.request.model_name_1 = "quadrotor";
+    srv.request.link_name_1 = "base_link";
+    srv.request.model_name_2 = "parcel_box_0";
+    srv.request.link_name_2 = "link";
 
-            success = go(_goal);
-            if (!success) invalid_poses.push_back(_goal);
-            else {
-                double xspan = XMAX - XMIN;
-                double yspan = YMAX - YMIN;
-                int xpatch = (_goal.position.x - XMIN) * GRID / xspan;
-                int ypatch = (_goal.position.y - YMIN) * GRID / yspan;
-                patches[xpatch][ypatch]++;
-
-                geometry_msgs::Point msg;
-                msg.x = xpatch;
-                msg.y = ypatch;
-                gui_ack.publish(msg);
-            }
-            ros::spinOnce();
-            rate.sleep();
-        } while (!success);
+    // Call the service
+    if (attach_service.call(srv))
+    {
+        if (srv.response.ok)
+        {
+            ROS_INFO("Successfully attached cube1 and cube2.");
+        }
+        else
+        {
+            ROS_ERROR("Failed to attach cube1 and cube2.");
+        }
     }
+    else
+    {
+        ROS_ERROR("Failed to call service /link_attacher_node/attach.");
+    }
+
+    // Optional: Delay or loop for message publication to complete
+    ros::spinOnce();
 }
