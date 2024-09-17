@@ -227,9 +227,9 @@ void Quadrotor::takeoff() {
 void Quadrotor::run() {
     ros::Rate rate(2);
     geometry_msgs::Pose p;
-    p.position.x = odometry_information.position.x;
-    p.position.y = odometry_information.position.y + 1;
-    p.position.z = odometry_information.position.z + 2;
+    p.position.x = 0;
+    p.position.y = 4.5;
+    p.position.z = 10;
     p.orientation = odometry_information.orientation;
     double dist = sqrt(pow(p.position.x - odometry_information.position.x, 2) +
                        pow(p.position.y - odometry_information.position.y, 2) +

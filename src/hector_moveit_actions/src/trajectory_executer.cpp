@@ -62,7 +62,8 @@ class TrajectoryActionController{
         void executeCB(const hector_moveit_actions::ExecuteDroneTrajectoryGoalConstPtr &goal){
             executing = true;
             trajectory = goal->trajectory;
-            ROS_INFO_STREAM("Executing trajectory!");
+            int amount = trajectory.size();
+            ROS_INFO("Executing trajectory with %d instructions!", amount);
             for(int i=0; i<trajectory.size()-1; i++){
                 if(server_.isPreemptRequested() || !ros::ok()){
                     ROS_INFO("Preempt requested");
@@ -71,8 +72,8 @@ class TrajectoryActionController{
                     break;
                 }
                 geometry_msgs::Twist vel_msg;
-                last_pose.position=trajectory[i+1].position;
-                last_pose.orientation=trajectory[i+1].orientation;
+                last_pose.position=trajectory[i].position;
+                last_pose.orientation=trajectory[i].orientation;
                 feedback_.current_pose = last_pose;
                 ros::spinOnce();
                 ros::Duration(0.05).sleep();
@@ -134,20 +135,24 @@ class TrajectoryActionController{
                 
 
                 
-                
+                ROS_INFO("Diff X: %lf", diffx);
+                ROS_INFO("Diff Y: %lf", diffy);
                 double latched_distance = sqrt(pow(diffx,2) + pow(diffy,2));
                 double distance = latched_distance;
                 vel_msg.linear.y = 0; vel_msg.linear.x= MAX_SPEED,vel_msg.linear.z = 0;
                 if(i>trajectory.size()-3) // Slow down at final waypoints.
                         vel_msg.linear.x /= 3;
-                ROS_INFO("Computed distance: %lf",distance);
-                while(distance > 0.4*MAX_SPEED){
+                if(distance < 5)
+                        vel_msg.linear.x /= 3;
+
+                ROS_INFO("Computed distance (2): %lf",distance);
+                while(distance > 0.1*MAX_SPEED){
                     
                     vel_pub.publish(vel_msg);
                     ros::spinOnce();
                     r.sleep();
                     distance = sqrt(pow(goalx - last_pose.position.x,2) + pow(goaly - last_pose.position.y,2));
-                    ROS_INFO("Distance to goal: %lf",distance);
+                    ROS_INFO("Distance to goal (2): %lf",distance);
                     server_.publishFeedback(feedback_);
                     if(distance < latched_distance) latched_distance = distance;
                     if(distance > latched_distance){
@@ -198,6 +203,7 @@ class TrajectoryActionController{
             double euler_distance = pow(p.position.x - feedback->current_pose.pose.position.x,2) + pow(p.position.y - feedback->current_pose.pose.position.y,2)
                                     + pow(p.position.z - feedback->current_pose.pose.position.z,2);
             euler_distance = sqrt(euler_distance);
+            ROS_INFO("Euler Distance: %lf", euler_distance);
             if(euler_distance < 0.15)
                 orientation_client_.cancelGoal();
         }
