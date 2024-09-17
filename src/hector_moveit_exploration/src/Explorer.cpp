@@ -228,20 +228,16 @@ void Quadrotor::takeoff() {
 }
 
 void Quadrotor::run() {
-    ros::Rate rate(2);
     geometry_msgs::Pose p;
     p.position.x = 0;
     p.position.y = 4.5;
     p.position.z = 10;
     p.orientation = odometry_information.orientation;
-    double dist = sqrt(pow(p.position.x - odometry_information.position.x, 2) +
-                       pow(p.position.y - odometry_information.position.y, 2) +
-                       pow(p.position.z - odometry_information.position.z, 2));
 
     go(p);
 
     // Log the message about the models being attached
-    ROS_INFO("Attaching cube1 and cube2");
+    ROS_INFO("Attaching the drone and the parcel box.");
 
     // Wait for the service to be available
     ros::service::waitForService("/link_attacher_node/attach");
@@ -258,11 +254,11 @@ void Quadrotor::run() {
     {
         if (srv.response.ok)
         {
-            ROS_INFO("Successfully attached cube1 and cube2.");
+            ROS_INFO("Successfully attached the drone and parcel box.");
         }
         else
         {
-            ROS_ERROR("Failed to attach cube1 and cube2.");
+            ROS_ERROR("Failed to attach the drone and parcel box.");
         }
     }
     else
@@ -272,4 +268,12 @@ void Quadrotor::run() {
 
     // Optional: Delay or loop for message publication to complete
     ros::spinOnce();
+
+    // Attempt to move with the package attached now
+    p.position.x = 2;
+    p.position.y = 6.5;
+    p.position.z = 15;
+    p.orientation = odometry_information.orientation;
+
+    go(p);
 }
