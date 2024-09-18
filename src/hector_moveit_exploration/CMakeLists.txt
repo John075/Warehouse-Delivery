@@ -3,7 +3,7 @@ project(hector_moveit_exploration)
 
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
-find_package(catkin REQUIRED COMPONENTS 
+find_package(catkin REQUIRED COMPONENTS
     roscpp 
     moveit_core 
     moveit_ros_planning_interface 
@@ -12,6 +12,18 @@ find_package(catkin REQUIRED COMPONENTS
     hector_moveit_actions
     actionlib
     gazebo_ros_link_attacher
+    rospy
+    message_generation
+)
+
+add_message_files(
+        FILES
+        MoveAction.msg
+)
+
+generate_messages(
+        DEPENDENCIES
+        std_msgs
 )
 
 find_package(octomap REQUIRED)
@@ -30,3 +42,8 @@ add_executable(hector_explorer src/Explorer.cpp src/explorer_node.cpp)
 target_compile_options(hector_explorer PRIVATE ${OpenMP_FLAGS} ${CMAKE_CXX_FLAGS})
 target_link_libraries(hector_explorer ${OCTOMAP_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBS})
 add_dependencies(hector_explorer hector_uav_msgs_generate_messages hector_moveit_actions_generate_messages gazebo_ros_link_attacher)
+
+catkin_install_python(PROGRAMS
+        test/test_explorer.py   # Path to your script
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}  # Installation destination
+)

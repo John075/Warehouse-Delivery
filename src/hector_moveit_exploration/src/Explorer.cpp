@@ -6,17 +6,14 @@ Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("/action/trajector
     odom_received = false;
     trajectory_received = false;
     collision = false;
-    nh.getParam("/grid_size", GRID);
 
-    patches.resize(GRID, std::vector<int>(GRID, 0));
     base_sub = nh.subscribe<nav_msgs::Odometry>("/ground_truth/state", 10, &Quadrotor::poseCallback, this);
     plan_sub = nh.subscribe<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1,
                                                             &Quadrotor::planCallback, this);
+    move_sub = nh.subscribe<hector_moveit_exploration::MoveAction>("/drone/do_action", 1, &Quadrotor::moveCallback, this);
 
     attach_service = nh.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/attach");
 
-    gui_ack = nh.advertise<geometry_msgs::Point>("/orchard_grid_filler", 10);
-    rate_ack = nh.advertise<std_msgs::Float64>("/orchard_exploration_rate", 1);
     move_group.reset(new moveit::planning_interface::MoveGroupInterface(PLANNING_GROUP));
     robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
     robot_model::RobotModelPtr kmodel = robot_model_loader.getModel();
@@ -79,11 +76,6 @@ void Quadrotor::collisionCallback(const hector_moveit_actions::ExecuteDroneTraje
                 }
             }
         }
-        double rate = known * 100.0 / (float) (unknown + known);
-        std_msgs::Float64 msg;
-        msg.data = rate;
-        rate_ack.publish(msg);
-        //ROS_INFO("Coverage of Orchard Volume: %lf Percent",rate);
 
         delete current_map;
         std::vector<size_t> invalid_indices;
@@ -114,22 +106,6 @@ void Quadrotor::collisionCallback(const hector_moveit_actions::ExecuteDroneTraje
         }
     } else
         ROS_INFO("Couldn't fetch the planning scene");
-}
-
-double Quadrotor::countFreeVolume(const octomap::OcTree *octree) {
-    double resolution = octree->getResolution();
-    int unknown = 0, known = 0;;
-    for (double ix = XMIN; ix < XMAX; ix += resolution) {
-        for (double iy = YMIN; iy < YMAX; iy += resolution) {
-            for (double iz = ZMIN; iz < ZMAX; iz += resolution) {
-                if (!octree->search(ix, iy, iz))
-                    unknown++;
-                else
-                    known++;
-            }
-        }
-    }
-    return known * 100.0 / (float) (unknown + known);
 }
 
 bool Quadrotor::go(geometry_msgs::Pose &target_) {
@@ -227,53 +203,44 @@ void Quadrotor::takeoff() {
     ROS_INFO("Takeoff successful");
 }
 
-void Quadrotor::run() {
-    geometry_msgs::Pose p;
-    p.position.x = 0;
-    p.position.y = 4.5;
-    p.position.z = 10;
-    p.orientation = odometry_information.orientation;
+void Quadrotor::moveCallback(const hector_moveit_exploration::MoveAction::ConstPtr &msg)
+{
+    ROS_INFO("Received coordinates: x = %f, y = %f, z = %f", msg->x, msg->y, msg->z);
+    ROS_INFO("Action: %s", msg->action.c_str());
 
-    go(p);
+    if(msg->action == "move_to"){
+        ROS_INFO("Moving to the location");
+        geometry_msgs::Pose p;
+        p.position.x = msg->x;
+        p.position.y = msg->y;
+        p.position.z = msg->z;
+        p.orientation = odometry_information.orientation;
 
-    // Log the message about the models being attached
-    ROS_INFO("Attaching the drone and the parcel box.");
-
-    // Wait for the service to be available
-    ros::service::waitForService("/link_attacher_node/attach");
-
-    // Create a service request and response object
-    gazebo_ros_link_attacher::Attach srv;
-    srv.request.model_name_1 = "quadrotor";
-    srv.request.link_name_1 = "base_link";
-    srv.request.model_name_2 = "parcel_box_0";
-    srv.request.link_name_2 = "link";
-
-    // Call the service
-    if (attach_service.call(srv))
+        go(p);
+    }
+    else if (msg->action == "pick_Up")
     {
-        if (srv.response.ok)
-        {
-            ROS_INFO("Successfully attached the drone and parcel box.");
-        }
-        else
-        {
-            ROS_ERROR("Failed to attach the drone and parcel box.");
+        ROS_INFO("Picking up the item");
+
+        // Wait for the service to be available
+        ros::service::waitForService("/link_attacher_node/attach");
+
+        // Create a service request and response object
+        gazebo_ros_link_attacher::Attach srv;
+        srv.request.model_name_1 = "quadrotor";
+        srv.request.link_name_1 = "base_link";
+        srv.request.model_name_2 = "parcel_box_0";
+        srv.request.link_name_2 = "link";
+
+        // Call the service
+        if (attach_service.call(srv)) {
+            if (srv.response.ok) {
+                ROS_INFO("Successfully attached the drone and parcel box.");
+            } else {
+                ROS_ERROR("Failed to attach the drone and parcel box.");
+            }
+        } else {
+            ROS_ERROR("Failed to call service /link_attacher_node/attach.");
         }
     }
-    else
-    {
-        ROS_ERROR("Failed to call service /link_attacher_node/attach.");
-    }
-
-    // Optional: Delay or loop for message publication to complete
-    ros::spinOnce();
-
-    // Attempt to move with the package attached now
-    p.position.x = 2;
-    p.position.y = 6.5;
-    p.position.z = 15;
-    p.orientation = odometry_information.orientation;
-
-    go(p);
 }
