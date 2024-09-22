@@ -34,6 +34,10 @@
 *.gv
 *.pdf
 
+# Testing Scripts
+run_docker_local.sh
+local_github_actions_test.sh
+
 build
 devel
 logs
@@ -41,3 +45,4 @@ logs
 .catkin_tools
 .idea
 .catkin_workspace
+.DS_Store

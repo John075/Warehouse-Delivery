@@ -24,7 +24,8 @@ RUN apt-get install -y \
     openssh-client \
     git \
     ros-melodic-moveit \
-    ros-melodic-geographic-msgs
+    ros-melodic-geographic-msgs \
+    alsa-utils
 
 # Initialize rosdep only if the default sources list does not exist
 RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then sudo rosdep init; fi
@@ -37,7 +38,7 @@ RUN mkdir -p ~/.ssh && \
     ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 # Clone the workspace from the GitHub repository
-RUN git clone --recurse-submodules git@github.com:John075/Warehouse-Delivery.git /root/catkin_ws
+RUN git clone -b feature/ci_cd_pipeline --recurse-submodules git@github.com:John075/Warehouse-Delivery.git /root/catkin_ws
 WORKDIR /root/catkin_ws
 
 # Build the repository

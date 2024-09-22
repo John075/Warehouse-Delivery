@@ -23,16 +23,37 @@ jobs:
         password: ${{ secrets.DOCKER_PAT }}
 
     - name: Build Docker image
-      run: docker build -t ros-melodic-container .
-
-    - name: Run tests inside Docker container
       run: |
-        docker run ros-melodic-container /bin/bash -c "
-  /root/catkin_ws/spawn_headless.sh &  # Start Gazebo and the Trajectory Controller in the background
-  PID1=\$!                             # Store the PID of the background process
-  sleep 15                             # Wait for 15 seconds to properly start
-  /root/catkin_ws/start_tests.sh          # Run our unit tests now
-  kill \$PID1                          # Terminate the first command
-  wait \$PID1                          # Wait for the first command to terminate properly
-"
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_private_key
+        docker build --build-arg SSH_PRIVATE_KEY="$(cat ssh_private_key)" -t ros-melodic-container .
+
+    - name: Start container and run background process
+      id: start-container
+      run: |
+        # Step 1: Start the container in detached mode
+        CONTAINER_ID=$(docker run -d ros-melodic-container /bin/bash -c "while true; do sleep 1000; done")
+        echo "Container ID: $CONTAINER_ID"
+        
+        # Step 2: Run spawn_headless.sh in the background and save its PID and logs
+        docker exec -d $CONTAINER_ID /bin/bash -c "source /root/catkin_ws/devel/setup.bash && /root/catkin_ws/spawn_headless.sh > /root/spawn_logs.log 2>&1 & echo \$! > /root/spawn_pid"
+
+        # Save the container ID for subsequent steps
+        echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_ENV
+
+    - name: Run tests inside the container
+      run: |
+        # Step 3: Run the test script inside the same container
+        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "source /root/catkin_ws/devel/setup.bash && /root/catkin_ws/start_tests.sh"
       continue-on-error: true
+
+    - name: Stop background process and cleanup
+      run: |
+        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "kill \$(cat /root/spawn_pid) && rm /root/spawn_pid"
+
+    - name: Display logs of background process
+      run: |
+        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "cat /root/spawn_logs.log"
+      
+    - name: Stop and remove the container
+      run: |
+        docker stop ${{ env.CONTAINER_ID }} && docker rm ${{ env.CONTAINER_ID }}

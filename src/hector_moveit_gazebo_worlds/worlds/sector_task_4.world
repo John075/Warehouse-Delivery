@@ -3,6 +3,7 @@
   <world name="default">
     <scene>
       <shadows>false</shadows>
+      <audio>false</audio>
       <grid>false</grid>
       <origin_visual>false</origin_visual>
       <sky>
