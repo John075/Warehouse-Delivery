@@ -61,6 +61,7 @@ void Quadrotor::collisionCallback(const hector_moveit_actions::ExecuteDroneTraje
     moveit_msgs::GetPlanningScene srv;
     srv.request.components.components = moveit_msgs::PlanningSceneComponents::OCTOMAP;
     if (planning_scene_service.call(srv)) {
+        ROS_INFO("Scene name: %s", srv.response.scene.name.c_str());
         this->planning_scene->setPlanningSceneDiffMsg(srv.response.scene);
         octomap_msgs::Octomap octomap = srv.response.scene.world.octomap.octomap;
         ROS_INFO("Octomap ID: %s %lf %d", octomap.id.c_str(), octomap.resolution, octomap.binary);
