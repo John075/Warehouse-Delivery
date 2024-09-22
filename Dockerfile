@@ -11,6 +11,13 @@ RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sud
 # Setup sources list
 RUN sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 
+# Update packages again
+RUN sudo apt-get update
+
+# Initialize rosdep only if the default sources list does not exist
+RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then sudo rosdep init; fi
+RUN rosdep update
+
 # Install other dependency packages
 RUN apt-get install -y \
     python2.7 \
@@ -22,14 +29,9 @@ RUN apt-get install -y \
     build-essential \
     ros-melodic-desktop-full \
     openssh-client \
-    git \
-    ros-melodic-moveit \
+    ros-melodic-moveit-* \
     ros-melodic-geographic-msgs \
-    alsa-utils
-
-# Initialize rosdep only if the default sources list does not exist
-RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then sudo rosdep init; fi
-RUN rosdep update
+    git 
 
 # Set up SSH to use the private key securely
 RUN mkdir -p ~/.ssh && \
@@ -43,6 +45,9 @@ WORKDIR /root/catkin_ws
 
 # Build the repository
 RUN /bin/bash -c "source /opt/ros/melodic/setup.bash && catkin_make"
+
+# Install any more needed dependencies
+RUN rosdep install --from-paths src --ignore-src -r -y --rosdistro melodic
 
 # Source ROS and catkin workspace on container start
 RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
