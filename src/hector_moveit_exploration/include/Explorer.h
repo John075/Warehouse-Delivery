@@ -89,7 +89,7 @@ class Quadrotor{
 
         void moveCallback(const hector_moveit_exploration::MoveAction::ConstPtr& msg);
 
-        bool go(geometry_msgs::Pose& target_);
+        void go(double x, double y, double z);
     
     public:
         Quadrotor(ros::NodeHandle& nh);

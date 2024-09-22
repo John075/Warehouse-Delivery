@@ -46,6 +46,11 @@
   </include>
 
   <!-- Adjust grid size to have more granular exploration-->
-  <param name="grid_size" type="double" value="13"/> 
+  <param name="grid_size" type="double" value="13"/>
+
+  <node name="trajectory_controller" pkg="hector_moveit_actions" type="trajectory_controller" respawn="false" output="screen"/>
+  <node name="hector_explorer" pkg="hector_moveit_exploration" type="hector_explorer" respawn="false" output="screen" launch-prefix="gdb -ex run --args">
+      <param name="/planning_plugin" value="ompl_interface/OMPLPlanner"/>
+  </node>
 
 </launch>

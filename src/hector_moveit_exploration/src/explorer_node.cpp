@@ -13,5 +13,7 @@ int main(int argc, char** argv)
     
     Quadrotor quad(std::ref(node_handle));
     quad.takeoff();
+
+    ros::waitForShutdown();
     return 0;
 }
