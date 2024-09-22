@@ -27,6 +27,9 @@ RUN apt-get install -y \
     ros-melodic-geographic-msgs \
     ros-melodic-moveit \
     ros-melodic-moveit-* \
+    gazebo9 \
+    libgazebo9-dev \
+    ros-melodic-gazebo9* \
     openssh-client \
     git \
     gdb
@@ -42,14 +45,15 @@ RUN mkdir -p ~/.ssh && \
     ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 # Clone the workspace from the GitHub repository
-RUN git clone -b feature/ci_cd_pipeline --recurse-submodules git@github.com:John075/Warehouse-Delivery.git /root/catkin_ws
+ARG GIT_CLONE_COMMIT=feature/ci_cd_pipeline
+RUN git clone -b $GIT_CLONE_COMMIT --recurse-submodules git@github.com:John075/Warehouse-Delivery.git /root/catkin_ws
 WORKDIR /root/catkin_ws
-
-# Build the repository
-RUN /bin/bash -c "source /opt/ros/melodic/setup.bash && catkin_make"
 
 # Install any more needed dependencies
 RUN rosdep install --from-paths src --ignore-src -r -y --rosdistro melodic
+
+# Build the repository
+RUN /bin/bash -c "source /opt/ros/melodic/setup.bash && catkin_make"
 
 # Source ROS and catkin workspace on container start
 RUN echo "source /opt/ros/melodic/setup.bash" >> ~/.bashrc
