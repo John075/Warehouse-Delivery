@@ -63,6 +63,8 @@ void Quadrotor::collisionCallback(const hector_moveit_actions::ExecuteDroneTraje
     if (planning_scene_service.call(srv)) {
         this->planning_scene->setPlanningSceneDiffMsg(srv.response.scene);
         octomap_msgs::Octomap octomap = srv.response.scene.world.octomap.octomap;
+        ROS_INFO("Octomap ID: %s %lf %d", octomap.id.c_str(), octomap.resolution, octomap.binary);
+
         octomap::OcTree *current_map = (octomap::OcTree *) octomap_msgs::msgToMap(octomap);
 
         double resolution = current_map->getResolution();
