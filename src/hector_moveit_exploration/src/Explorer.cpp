@@ -1,4 +1,5 @@
 #include <Explorer.h>
+#include <thread>
 
 
 Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("/action/trajectory", true) {
@@ -108,7 +109,13 @@ void Quadrotor::collisionCallback(const hector_moveit_actions::ExecuteDroneTraje
         ROS_INFO("Couldn't fetch the planning scene");
 }
 
-bool Quadrotor::go(geometry_msgs::Pose &target_) {
+void Quadrotor::go(double x, double y, double z) {
+    geometry_msgs::Pose target_;
+    target_.position.x = x;
+    target_.position.y = y;
+    target_.position.z = z;
+    target_.orientation = odometry_information.orientation;
+
     std::vector<double> target(7);
     target[0] = target_.position.x;
     target[1] = target_.position.y;
@@ -138,6 +145,7 @@ bool Quadrotor::go(geometry_msgs::Pose &target_) {
     this->move_group->setStartState(*start_state);
 
     this->isPathValid = (move_group->plan(plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    ROS_INFO("returned from -> plan");
     if (this->isPathValid) {
 
         this->plan_start_state = plan.start_state_;
@@ -146,6 +154,8 @@ bool Quadrotor::go(geometry_msgs::Pose &target_) {
             ROS_INFO("Waiting for trajectory");
             ros::Duration(0.2).sleep();
         }
+        ROS_INFO("Received trajectory");
+        ROS_INFO("Trajectory size: %zu", trajectory.size());
         hector_moveit_actions::ExecuteDroneTrajectoryGoal goal;
 
         for (int i = 0; i < trajectory.size(); i++) {
@@ -189,7 +199,6 @@ bool Quadrotor::go(geometry_msgs::Pose &target_) {
     } else {
         ROS_INFO("Invalid path!");
     }
-    return this->isPathValid;
 }
 
 void Quadrotor::takeoff() {
@@ -199,7 +208,7 @@ void Quadrotor::takeoff() {
     while (!odom_received);
     geometry_msgs::Pose takeoff_pose = odometry_information;
     takeoff_pose.position.z = takeoff_altitude;
-    go(takeoff_pose);
+    go(takeoff_pose.position.x, takeoff_pose.position.y, takeoff_pose.position.z);
     ROS_INFO("Takeoff successful");
 }
 
@@ -210,15 +219,10 @@ void Quadrotor::moveCallback(const hector_moveit_exploration::MoveAction::ConstP
 
     if(msg->action == "move_to"){
         ROS_INFO("Moving to the location");
-        geometry_msgs::Pose p;
-        p.position.x = msg->x;
-        p.position.y = msg->y;
-        p.position.z = msg->z;
-        p.orientation = odometry_information.orientation;
-
-        go(p);
+        std::thread planning_thread(&Quadrotor::go, this, msg->x, msg->y, msg->z);
+        planning_thread.detach();
     }
-    else if (msg->action == "pick_Up")
+    else if (msg->action == "pick_up")
     {
         ROS_INFO("Picking up the item");
 
