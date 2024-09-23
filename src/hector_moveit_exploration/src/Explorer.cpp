@@ -61,7 +61,6 @@ void Quadrotor::collisionCallback(const hector_moveit_actions::ExecuteDroneTraje
     moveit_msgs::GetPlanningScene srv;
     srv.request.components.components = moveit_msgs::PlanningSceneComponents::OCTOMAP;
     if (planning_scene_service.call(srv)) {
-        ROS_INFO("Scene name: %s", srv.response.scene.name.c_str());
         this->planning_scene->setPlanningSceneDiffMsg(srv.response.scene);
         octomap_msgs::Octomap octomap = srv.response.scene.world.octomap.octomap;
         ROS_INFO("Octomap ID: %s %lf %d", octomap.id.c_str(), octomap.resolution, octomap.binary);
@@ -98,7 +97,7 @@ void Quadrotor::collisionCallback(const hector_moveit_actions::ExecuteDroneTraje
                 double dist = sqrt(
                         pow(x - odometry_information.position.x, 2) + pow(y - odometry_information.position.y, 2) +
                         pow(z - odometry_information.position.z, 2));
-                if (dist < 0.5) too_close = true;
+                if (dist < 0.7) too_close = true;
             }
         }
 
