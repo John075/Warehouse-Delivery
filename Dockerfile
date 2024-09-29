@@ -32,7 +32,8 @@ RUN apt-get install -y \
     ros-melodic-gazebo9* \
     openssh-client \
     git \
-    gdb
+    gdb \
+    xvfb
 
 # Initialize rosdep only if the default sources list does not exist
 RUN if [ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]; then sudo rosdep init; fi
