@@ -1,6 +1,6 @@
 import rospy
 from nav_msgs.msg import Odometry
-from my_drone_msgs.msg import MoveAction  # Adjust this import to your actual message type
+from hector_moveit_exploration.msg import MoveAction
 import unittest
 
 class TestDrone(unittest.TestCase):

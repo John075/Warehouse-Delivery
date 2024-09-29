@@ -24,8 +24,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_private_key
-        docker build --build-arg SSH_PRIVATE_KEY="$(cat ssh_private_key)" --build-arg CACHE_BUSTER=${{ env.CACHE_BUSTER }} -t ros-melodic-container .
+        docker build --build-arg SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}" --build-arg CACHE_BUSTER=${{ secrets.CACHE_BUSTER }} -t ros-melodic-container .
 
     - name: Start container and run background process
       id: start-container
