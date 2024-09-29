@@ -42,7 +42,9 @@ class TrajectoryActionController{
         TrajectoryActionController(std::string name) : counter(0), action_name(name),
             server_(nh_,name,boost::bind(&TrajectoryActionController::executeCB,this,_1),false),
             orientation_client_("/action/pose",true){
+                ROS_INFO("Entered trajectory action controller!");
                 orientation_client_.waitForServer();
+                ROS_INFO("After orientation client!");
                 empty.linear.x = 0;empty.linear.y = 0; empty.linear.z = 0;
                 empty.angular.x = 0;empty.angular.y = 0;empty.angular.z = 0;
                 vel_pub = nh_.advertise<geometry_msgs::Twist>("/cmd_vel",10);
@@ -57,7 +59,7 @@ class TrajectoryActionController{
                 success = true;
                 executing = false;
                 server_.start();
-            
+                ROS_INFO("Started server!");
             }
         void executeCB(const hector_moveit_actions::ExecuteDroneTrajectoryGoalConstPtr &goal){
             executing = true;

@@ -1,0 +1,62 @@
+name: Build, Run, and Test ROS Melodic Docker Container
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_EMAIL }}
+        password: ${{ secrets.DOCKER_PAT }}
+
+    - name: Build Docker image
+      run: |
+        docker build --build-arg SSH_PRIVATE_KEY="${{ secrets.SSH_PRIVATE_KEY }}" --build-arg CACHE_BUSTER=${{ secrets.CACHE_BUSTER }} -t ros-melodic-container .
+
+    - name: Start container and run background process
+      id: start-container
+      run: |
+        CONTAINER_ID=$(docker run -d ros-melodic-container /bin/bash -c "while true; do sleep 1000; done")
+        echo "Container ID: $CONTAINER_ID"
+        
+        docker exec -d $CONTAINER_ID /bin/bash -c "source /root/catkin_ws/devel/setup.bash && stdbuf -oL -eL /root/catkin_ws/spawn_headless.sh > /root/spawn_logs.log 2>&1 & echo \$! > /root/spawn_pid"
+        # Save the container ID for subsequent steps
+        echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_ENV
+
+    - name: Wait for 'Takeoff successful' message before starting tests
+      run: |
+        echo "Waiting for 'Takeoff successful' in the log file..."
+        until docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "grep -q 'Takeoff successful' /root/spawn_logs.log"; do
+          sleep 1
+        done
+        echo "'Takeoff successful' detected."
+
+    - name: Run tests inside the container
+      run: |
+        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "source /root/catkin_ws/devel/setup.bash && /root/catkin_ws/start_tests.sh"
+      continue-on-error: true
+
+    - name: Stop background process and cleanup
+      run: |
+        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "kill \$(cat /root/spawn_pid) && rm /root/spawn_pid"
+
+    - name: Display logs of background process
+      run: |
+        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "cat /root/spawn_logs.log"
+      
+    - name: Stop and remove the container
+      run: |
+        docker stop ${{ env.CONTAINER_ID }} && docker rm ${{ env.CONTAINER_ID }}

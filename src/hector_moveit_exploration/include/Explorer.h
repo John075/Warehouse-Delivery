@@ -10,6 +10,7 @@
 #include <geometry_msgs/Pose.h>
 #include <std_msgs/Float64.h>
 #include <nav_msgs/Odometry.h>
+#include "hector_moveit_exploration/MoveAction.h"
 #include <octomap_msgs/conversions.h>
 
 #include <moveit_msgs/DisplayTrajectory.h>
@@ -63,21 +64,14 @@ class Quadrotor{
         std::unique_ptr<robot_state::RobotState> start_state;
         std::unique_ptr<planning_scene::PlanningScene> planning_scene;
         const double takeoff_altitude = 9;
-        int GRID;
-        bool odom_received,trajectory_received;
+        bool odom_received, trajectory_received;
         bool isPathValid;
         bool collision;
 
         geometry_msgs::Pose odometry_information;
         std::vector<geometry_msgs::Pose> trajectory;
-        
-        std::vector<geometry_msgs::Pose> invalid_poses;
-        std::vector<std::vector<int> > patches;
-        std::queue<DistancedPoint> frontiers;
-        std::vector<geometry_msgs::Pose> explored;
 
-        ros::Subscriber base_sub,plan_sub;
-        ros::Publisher gui_ack,rate_ack;
+        ros::Subscriber base_sub,plan_sub,move_sub;
         ros::ServiceClient motor_enable_service; 
         ros::ServiceClient planning_scene_service;
         ros::ServiceClient attach_service;
@@ -93,12 +87,9 @@ class Quadrotor{
 
         void collisionCallback(const hector_moveit_actions::ExecuteDroneTrajectoryFeedbackConstPtr& feedback);
 
-        double countFreeVolume(const octomap::OcTree *octree);
-        double calc_MI(const octomap::OcTree *octree, const geometry_msgs::Point& point, const octomap::Pointcloud &hits, const double before);
-        octomap::Pointcloud castSensorRays(const octomap::OcTree* curr_tree,const geometry_msgs::Pose& pose);
-        void findFrontier();
+        void moveCallback(const hector_moveit_exploration::MoveAction::ConstPtr& msg);
 
-        bool go(geometry_msgs::Pose& target_);
+        void go(double x, double y, double z);
     
     public:
         Quadrotor(ros::NodeHandle& nh);
