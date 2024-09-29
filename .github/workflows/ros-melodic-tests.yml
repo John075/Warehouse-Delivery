@@ -25,7 +25,7 @@ jobs:
     - name: Build Docker image
       run: |
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_private_key
-        docker build --build-arg SSH_PRIVATE_KEY="$(cat ssh_private_key)" -t ros-melodic-container .
+        docker build --build-arg SSH_PRIVATE_KEY="$(cat ssh_private_key)" --build-arg CACHE_BUSTER=${{ env.CACHE_BUSTER }} -t ros-melodic-container .
 
     - name: Start container and run background process
       id: start-container
@@ -36,6 +36,14 @@ jobs:
         docker exec -d $CONTAINER_ID /bin/bash -c "source /root/catkin_ws/devel/setup.bash && stdbuf -oL -eL /root/catkin_ws/spawn_headless.sh > /root/spawn_logs.log 2>&1 & echo \$! > /root/spawn_pid"
         # Save the container ID for subsequent steps
         echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_ENV
+
+    - name: Wait for 'Takeoff successful' message before starting tests
+      run: |
+        echo "Waiting for 'Takeoff successful' in the log file..."
+        until docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "grep -q 'Takeoff successful' /root/spawn_logs.log"; do
+          sleep 1
+        done
+        echo "'Takeoff successful' detected."
 
     - name: Run tests inside the container
       run: |
