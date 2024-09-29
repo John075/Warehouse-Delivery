@@ -16,7 +16,8 @@ class TestDrone(unittest.TestCase):
 
         # Publisher to send move actions
         self.pub = rospy.Publisher('/drone/do_action', MoveAction, queue_size=10)
-        
+        rospy.sleep(1)
+          
         # Subscribe to ground truth state to track position
         rospy.Subscriber('/ground_truth/state', Odometry, self.pose_callback)
 
