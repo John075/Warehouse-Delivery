@@ -35,8 +35,8 @@
 *.pdf
 
 # Testing Scripts
-run_docker_local.sh
-local_github_actions_test.sh
+scripts/run_docker_local.sh
+scripts/local_github_actions_test.sh
 
 build
 devel
