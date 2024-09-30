@@ -32,21 +32,28 @@ jobs:
         CONTAINER_ID=$(docker run -d ros-melodic-container /bin/bash -c "while true; do sleep 1000; done")
         echo "Container ID: $CONTAINER_ID"
         
-        docker exec -d $CONTAINER_ID /bin/bash -c "source /root/catkin_ws/devel/setup.bash && stdbuf -oL -eL /root/catkin_ws/scripts/spawn_headless.sh > /root/spawn_logs.log 2>&1 & echo \$! > /root/spawn_pid"
+        docker exec -d $CONTAINER_ID /bin/bash -c "source /root/catkin_ws/drone-software/devel/setup.bash && stdbuf -oL -eL /root/catkin_ws/drone-software/scripts/spawn_headless.sh > /root/spawn_logs.log 2>&1 & echo \$! > /root/spawn_pid"
         # Save the container ID for subsequent steps
         echo "CONTAINER_ID=$CONTAINER_ID" >> $GITHUB_ENV
 
     - name: Wait for 'Takeoff successful' message before starting tests
       run: |
-        echo "Waiting for 'Takeoff successful' in the log file..."
+        echo "Waiting for 'Takeoff successful' in the log file"
+        COUNT=0
         until docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "grep -q 'Takeoff successful' /root/spawn_logs.log"; do
           sleep 1
+          COUNT=$((COUNT + 1))
+          if [ $COUNT -ge 30 ]; then
+            echo "'Takeoff successful' message not detected within 30 seconds. Showing log:"
+            docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "cat /root/spawn_logs.log"
+          exit 1
+        fi
         done
         echo "'Takeoff successful' detected."
 
     - name: Run tests inside the container
       run: |
-        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "source /root/catkin_ws/devel/setup.bash && /root/catkin_ws/scripts/start_tests.sh"
+        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "source /root/catkin_ws/devel/setup.bash && /root/catkin_ws/drone-software/scripts/start_tests.sh"
       continue-on-error: true
 
     - name: Stop background process and cleanup
