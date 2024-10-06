@@ -13,7 +13,7 @@ public class Package {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "drone_id")
+    @JoinColumn(name = "drone_id", nullable = true)
     private Drone assignedDrone;
 
     @Enumerated(EnumType.STRING)

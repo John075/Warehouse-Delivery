@@ -38,6 +38,22 @@ const HeaderComponent = () => {
                                         Packages
                                     </NavLink>
                                 </li>
+                                <li className="nav-item">
+                                    <NavLink
+                                        className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+                                        to="/drone-models"
+                                    >
+                                        Drone Models
+                                    </NavLink>
+                                </li>
+                                <li className="nav-item">
+                                    <NavLink
+                                        className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+                                        to="/warehouses"
+                                    >
+                                        Warehouses
+                                    </NavLink>
+                                </li>
                             </ul>
                         </div>
                     </div>

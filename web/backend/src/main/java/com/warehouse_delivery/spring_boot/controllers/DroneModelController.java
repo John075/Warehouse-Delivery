@@ -1,16 +1,14 @@
 package com.warehouse_delivery.spring_boot.controllers;
 
 import com.warehouse_delivery.spring_boot.dto.DroneModelDto;
-import com.warehouse_delivery.spring_boot.entity.DroneModel;
-import com.warehouse_delivery.spring_boot.mapper.DroneModelMapper;
 import com.warehouse_delivery.spring_boot.services.DroneModelService;
-import com.warehouse_delivery.spring_boot.services.PackageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/drone-model")
 public class DroneModelController {

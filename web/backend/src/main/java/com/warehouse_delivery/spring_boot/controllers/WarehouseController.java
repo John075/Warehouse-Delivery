@@ -1,9 +1,6 @@
 package com.warehouse_delivery.spring_boot.controllers;
 
 import com.warehouse_delivery.spring_boot.dto.WarehouseDto;
-import com.warehouse_delivery.spring_boot.entity.Warehouse;
-import com.warehouse_delivery.spring_boot.mapper.WarehouseMapper;
-import com.warehouse_delivery.spring_boot.services.DroneModelService;
 import com.warehouse_delivery.spring_boot.services.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/warehouse")
 public class WarehouseController {

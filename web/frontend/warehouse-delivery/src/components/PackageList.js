@@ -9,6 +9,10 @@ function PackageList() {
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [packageName, setPackageName] = useState('');
+    const [assignedDrone, setAssignedDrone] = useState('');
+    const [status, setStatus] = useState('');
+    const [destination, setDestination] = useState({ street: '', city: '', state: '', zipCode: '', country: '' });
+    const [priority, setPriority] = useState(0);
     const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
@@ -29,15 +33,27 @@ function PackageList() {
     const handleCloseModal = () => {
         setShowModal(false);
         setPackageName('');
+        setAssignedDrone('');
+        setStatus('');
+        setDestination({ street: '', city: '', state: '', zipCode: '', country: '' });
+        setPriority(0);
         setSuccessMessage('');
     };
 
     const handleRegisterPackage = (e) => {
         e.preventDefault();
-        PackageService.registerPackage({ name: packageName })
+        const newPackage = {
+            name: packageName,
+            assignedDrone: assignedDrone || null,
+            status,
+            destination,
+            priority,
+        };
+
+        PackageService.registerPackage(newPackage)
             .then(() => {
                 setSuccessMessage('Package successfully registered!');
-                setPackages([...packages, { name: packageName, id: packages.length + 1 }]);
+                setPackages([...packages, { ...newPackage, id: packages.length + 1 }]);
                 setTimeout(handleCloseModal, 1500);  // Close the modal after success
             })
             .catch((err) => {
@@ -85,6 +101,10 @@ function PackageList() {
                 <tr>
                     <th>ID</th>
                     <th>Package Name</th>
+                    <th>Assigned Drone</th>
+                    <th>Status</th>
+                    <th>Destination</th>
+                    <th>Priority</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -92,6 +112,10 @@ function PackageList() {
                     <tr key={pkg.id}>
                         <td>{pkg.id}</td>
                         <td>{pkg.name}</td>
+                        <td>{pkg.assignedDrone ? pkg.assignedDrone.name : 'Unassigned'}</td>
+                        <td>{pkg.status}</td>
+                        <td>{`${pkg.destination.street}, ${pkg.destination.city}, ${pkg.destination.state}`}</td>
+                        <td>{pkg.priority}</td>
                     </tr>
                 ))}
                 </tbody>
@@ -113,7 +137,79 @@ function PackageList() {
                                 required
                             />
                         </Form.Group>
-                        <Button variant="success" type="submit" className="mt-3" block>
+
+                        <Form.Group controlId="assignedDrone">
+                            <Form.Label>Assigned Drone (Optional)</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Enter drone ID (optional)"
+                                value={assignedDrone}
+                                onChange={(e) => setAssignedDrone(e.target.value)}
+                            />
+                        </Form.Group>
+
+                        <Form.Group controlId="status">
+                            <Form.Label>Status</Form.Label>
+                            <Form.Control
+                                as="select"
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
+                            >
+                                <option value="">Select Status</option>
+                                <option value="IN_TRANSIT">In Transit</option>
+                                <option value="DELIVERED">Delivered</option>
+                                <option value="PENDING">Pending</option>
+                            </Form.Control>
+                        </Form.Group>
+
+                        <Form.Group controlId="destination">
+                            <Form.Label>Destination</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Street"
+                                value={destination.street}
+                                onChange={(e) => setDestination({ ...destination, street: e.target.value })}
+                            />
+                            <Form.Control
+                                type="text"
+                                placeholder="City"
+                                value={destination.city}
+                                onChange={(e) => setDestination({ ...destination, city: e.target.value })}
+                                className="mt-2"
+                            />
+                            <Form.Control
+                                type="text"
+                                placeholder="State"
+                                value={destination.state}
+                                onChange={(e) => setDestination({ ...destination, state: e.target.value })}
+                                className="mt-2"
+                            />
+                            <Form.Control
+                                type="text"
+                                placeholder="Zip Code"
+                                value={destination.zipCode}
+                                onChange={(e) => setDestination({ ...destination, zipCode: e.target.value })}
+                                className="mt-2"
+                            />
+                            <Form.Control
+                                type="text"
+                                placeholder="Country"
+                                value={destination.country}
+                                onChange={(e) => setDestination({ ...destination, country: e.target.value })}
+                                className="mt-2"
+                            />
+                        </Form.Group>
+
+                        <Form.Group controlId="priority">
+                            <Form.Label>Priority</Form.Label>
+                            <Form.Control
+                                type="number"
+                                value={priority}
+                                onChange={(e) => setPriority(e.target.value)}
+                            />
+                        </Form.Group>
+
+                        <Button variant="success" type="submit" className="mt-3 w-100">
                             Register Package
                         </Button>
                     </Form>

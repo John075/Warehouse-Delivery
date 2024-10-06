@@ -6,6 +6,8 @@ import DroneList from "./components/DroneList";
 import PackageList from "./components/PackageList";
 import HeaderComponent from "./components/HeaderComponent";
 import WelcomePage from "./components/WelcomePage";
+import DroneModelList from "./components/DroneModelList";
+import WarehouseList from "./components/WarehouseList";
 
 function App() {
     return (
@@ -16,6 +18,8 @@ function App() {
                     <Route path="/" element={<WelcomePage />} />
                     <Route path="/drones" element={<DroneList />} />
                     <Route path="/packages" element={<PackageList />} />
+                    <Route path="/drone-models" element={<DroneModelList />} />
+                    <Route path="/warehouses" element={<WarehouseList />} />
                 </Routes>
             </div>
         </Router>
