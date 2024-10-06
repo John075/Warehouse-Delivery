@@ -14,29 +14,46 @@ import java.util.List;
 @Service
 public class DroneServiceImpl implements DroneService {
 
-    final DroneRepository droneRepository;
+    private final DroneRepository droneRepository;
 
     @Autowired
-    public DroneServiceImpl(DroneRepository repository) {
-        this.droneRepository = repository;
+    public DroneServiceImpl(DroneRepository droneRepository) {
+        this.droneRepository = droneRepository;
     }
 
     @Override
     public DroneDto getDrone(Long id) {
-        final Drone drone = droneRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Drone does not exist with id " + id));
+        Drone drone = droneRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Drone not found with id: " + id));
         return DroneMapper.mapToDroneDto(drone);
     }
 
     @Override
     public List<DroneDto> getAllDrones() {
-        final List<Drone> drones = droneRepository.findAll();
+        List<Drone> drones = droneRepository.findAll();
         return drones.stream().map(DroneMapper::mapToDroneDto).toList();
     }
 
     @Override
     public DroneDto registerDrone(DroneDto droneDto) {
-        final Drone registeredDrone = droneRepository.save(DroneMapper.mapToDrone(droneDto));
-        return DroneMapper.mapToDroneDto(registeredDrone);
+        Drone newDrone = DroneMapper.mapToDrone(droneDto);
+        droneRepository.save(newDrone);
+        return DroneMapper.mapToDroneDto(newDrone);
+    }
+
+    @Override
+    public DroneDto updateDrone(Long id, DroneDto droneDto) {
+        droneRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Drone not found with id: " + id));
+
+        Drone updatedDrone = droneRepository.save(DroneMapper.mapToDrone(droneDto));
+        return DroneMapper.mapToDroneDto(updatedDrone);
+    }
+
+    @Override
+    public void deleteDrone(Long id) {
+        Drone drone = droneRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Drone not found with id: " + id));
+        droneRepository.delete(drone);
     }
 }

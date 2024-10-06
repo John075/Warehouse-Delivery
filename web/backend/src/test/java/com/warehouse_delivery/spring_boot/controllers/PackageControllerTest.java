@@ -1,91 +1,147 @@
 package com.warehouse_delivery.spring_boot.controllers;
 
+import com.warehouse_delivery.spring_boot.dto.DroneDto;
 import com.warehouse_delivery.spring_boot.dto.PackageDto;
-import com.warehouse_delivery.spring_boot.repositories.PackageRepository;
+import com.warehouse_delivery.spring_boot.dto.WarehouseDto;
+import com.warehouse_delivery.spring_boot.entity.Address;
+import com.warehouse_delivery.spring_boot.enums.PackageStatus;
 import com.warehouse_delivery.spring_boot.services.PackageService;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import com.warehouse_delivery.spring_boot.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import java.util.Arrays;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Test class for testing the Package REST API.
- * It contains unit tests for retrieving package details and all packages.
- */
 @SpringBootTest
 @AutoConfigureMockMvc
 public class PackageControllerTest {
 
-    @Autowired
-    private PackageRepository packageRepository;
-
-    @Autowired
+    @MockBean
     private PackageService packageService;
+    @InjectMocks
+    private PackageController packageController;
 
-    @Autowired
-    private EntityManager entityManager;
+    private MockMvc mockMvc;
 
-    @Autowired
-    private MockMvc mvc;
+    private PackageDto testPackage;
+    private DroneDto testDrone;
+    private WarehouseDto testWarehouse;
 
-    private PackageDto testPackageOne;
-
-    /**
-     * Set up method to run before each test case.
-     * Deletes all packages from the repository, resets the sequence of the package ID to 1,
-     * and creates a test package to be used for tests.
-     */
     @BeforeEach
     public void setUp() {
-        // Delete all packages currently in test repo to check native ID sequencing and be consistent
-        packageRepository.deleteAll();
-        entityManager.createNativeQuery("ALTER SEQUENCE package_id_seq RESTART WITH 1").executeUpdate();
+        MockitoAnnotations.openMocks(this);
+        this.mockMvc = MockMvcBuilders.standaloneSetup(packageController).build();
 
-        // Create a test package for us to check requirements against
-        PackageDto testPackageOne = new PackageDto();
-        testPackageOne.setName("Flowers from Amazon");
-        testPackageOne.setId(1L);
-        this.testPackageOne = packageService.registerPackage(testPackageOne);
+        testDrone = new DroneDto();
+        testDrone.setId(1L);
+        testDrone.setName("Delivery Drone A");
+        testDrone.setBatteryLife(80.5);
+        testDrone.setLastLatitudeLocation(37.7749);
+        testDrone.setLastLongitudeLocation(-122.4194);
+        testDrone.setConnectedToSystem(true);
+
+        testWarehouse = new WarehouseDto();
+        testWarehouse.setId(1L);
+        testWarehouse.setName("Main Warehouse");
+        testWarehouse.setLatitude(40.7128);
+        testWarehouse.setLongitude(-74.0060);
+        testWarehouse.setCapacity(100);
+
+        testPackage = new PackageDto();
+        testPackage.setId(1L);
+        testPackage.setName("Sample Package");
+        testPackage.setStatus(PackageStatus.PENDING);
+        testPackage.setPriority(1);
+        testPackage.setOrderTime(System.currentTimeMillis());
+        testPackage.setWarehouse(testWarehouse); // Assign the test warehouse
+        testPackage.setAssignedDrone(testDrone); // Assign the test drone
+        testPackage.setDestination(new Address("123 Street", "City", "State", "12345", "Country"));
     }
 
-    /**
-     * Test case for testing the GET request to retrieve a specific package by ID.
-     * Verifies that the returned package has the correct ID and name.
-     *
-     * @throws Exception if any error occurs during the request
-     */
     @Test
-    @Transactional
     public void testGetPackage() throws Exception {
-        mvc.perform(get("/api/package/" + testPackageOne.getId()).accept(MediaType.APPLICATION_JSON))
+        when(packageService.getPackage(anyLong())).thenReturn(testPackage);
+
+        mockMvc.perform(get("/api/package/1").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L)) // Check the id of the first entry
-                .andExpect(jsonPath("$.name").value("Flowers from Amazon")); //Check name of the first entry
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Sample Package"))
+                .andExpect(jsonPath("$.status").value("PENDING"))
+                .andExpect(jsonPath("$.priority").value(1))
+                .andExpect(jsonPath("$.assignedDrone.name").value("Delivery Drone A"))
+                .andExpect(jsonPath("$.warehouse.name").value("Main Warehouse"))
+                .andExpect(jsonPath("$.destination.street").value("123 Street"));
     }
 
-    /**
-     * Test case for testing the GET request to retrieve all packages.
-     * Verifies that the length of the response array is 1 and that the first package has the correct ID and name.
-     *
-     * @throws Exception if any error occurs during the request
-     */
     @Test
-    @Transactional
     public void testGetAllPackages() throws Exception {
-        mvc.perform(get("/api/package").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()) .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(1L))  // Check the id of the first entry
-                .andExpect(jsonPath("$[0].name").value("Flowers from Amazon"));  // Check the name of the first entry
+        when(packageService.getAllPackages()).thenReturn(Arrays.asList(testPackage));
+
+        mockMvc.perform(get("/api/package").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].name").value("Sample Package"))
+                .andExpect(jsonPath("$[0].assignedDrone.name").value("Delivery Drone A"))
+                .andExpect(jsonPath("$[0].warehouse.name").value("Main Warehouse"));
     }
 
+    @Test
+    public void testRegisterPackage() throws Exception {
+        when(packageService.registerPackage(any(PackageDto.class))).thenReturn(testPackage);
 
+        String packageJson = TestUtils.asJsonString(testPackage);
+        System.out.println(packageJson);
+
+        mockMvc.perform(post("/api/package")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(packageJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Sample Package"))
+                .andExpect(jsonPath("$.assignedDrone.name").value("Delivery Drone A"))
+                .andExpect(jsonPath("$.warehouse.name").value("Main Warehouse"));
+    }
+
+    @Test
+    public void testUpdatePackage() throws Exception {
+        testPackage.setName("Updated Package");
+        testPackage.setStatus(PackageStatus.DELIVERED);
+
+        when(packageService.updatePackage(anyLong(), argThat(packageDto ->
+                packageDto.getId().equals(testPackage.getId()) && packageDto.getName().equals("Updated Package"))))
+                .thenReturn(testPackage);
+
+        String packageJson = TestUtils.asJsonString(testPackage);
+
+        mockMvc.perform(put("/api/package/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(packageJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Updated Package"))
+                .andExpect(jsonPath("$.status").value("DELIVERED"))
+                .andExpect(jsonPath("$.assignedDrone.name").value("Delivery Drone A"))
+                .andExpect(jsonPath("$.warehouse.name").value("Main Warehouse"));
+    }
+
+    @Test
+    public void testDeletePackage() throws Exception {
+        mockMvc.perform(delete("/api/package/1"))
+                .andExpect(status().isNoContent());
+    }
 }

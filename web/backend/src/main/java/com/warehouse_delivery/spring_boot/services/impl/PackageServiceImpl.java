@@ -23,8 +23,8 @@ public class PackageServiceImpl implements PackageService {
 
     @Override
     public PackageDto getPackage(Long id) {
-        final Package packageEntity = packageRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("package does not exist with id " + id));
+        final Package packageEntity = packageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Package does not exist with id " + id));
         return PackageMapper.mapToPackageDto(packageEntity);
     }
 
@@ -36,7 +36,24 @@ public class PackageServiceImpl implements PackageService {
 
     @Override
     public PackageDto registerPackage(PackageDto packageDto) {
-        final Package registeredpackage = packageRepository.save(PackageMapper.mapToPackage(packageDto));
-        return PackageMapper.mapToPackageDto(registeredpackage);
+        final Package registeredPackage = packageRepository.save(PackageMapper.mapToPackage(packageDto));
+        return PackageMapper.mapToPackageDto(registeredPackage);
+    }
+
+    @Override
+    public PackageDto updatePackage(Long id, PackageDto packageDto) {
+        packageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Package does not exist with id " + id));
+
+        // Save the updated package
+        Package updatedPackage = packageRepository.save(PackageMapper.mapToPackage(packageDto));
+        return PackageMapper.mapToPackageDto(updatedPackage);
+    }
+
+    @Override
+    public void deletePackage(Long id) {
+        Package packageEntity = packageRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Package does not exist with id " + id));
+        packageRepository.delete(packageEntity);
     }
 }

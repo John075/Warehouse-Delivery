@@ -1,29 +1,95 @@
 package com.warehouse_delivery.spring_boot.dto;
 
+import com.warehouse_delivery.spring_boot.entity.Address;
+import com.warehouse_delivery.spring_boot.enums.PackageStatus;
+
 public class PackageDto {
 
-    /** Fields **/
-    private String name;
     private Long id;
+    private String name;
+    private PackageStatus status;
+    private Address destination;
+    private DroneDto assignedDrone;
+    private WarehouseDto warehouse;
+    private int priority;
+    private long orderTime;
+
+    // Constructors, getters, and setters
 
     public PackageDto() {}
 
-    /** Setters **/
+    public PackageDto(Long id, String name, PackageStatus status, Address destination, DroneDto assignedDrone, WarehouseDto warehouse, int priority, long orderTime) {
+        this.id = id;
+        this.name = name;
+        this.status = status;
+        this.destination = destination;
+        this.assignedDrone = assignedDrone;
+        this.warehouse = warehouse;
+        this.priority = priority;
+        this.orderTime = orderTime;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setId(final Long id) {
-        this.id = id;
+    public PackageStatus getStatus() {
+        return status;
     }
 
-    /** Getters **/
-    public String getName() {
-        return this.name;
+    public void setStatus(PackageStatus status) {
+        this.status = status;
     }
 
-    public Long getId() {
-        return this.id;
+    public Address getDestination() {
+        return destination;
     }
 
+    public void setDestination(Address destination) {
+        this.destination = destination;
+    }
+
+    public DroneDto getAssignedDrone() {
+        return assignedDrone;
+    }
+
+    public void setAssignedDrone(DroneDto assignedDrone) {
+        this.assignedDrone = assignedDrone;
+    }
+
+    public WarehouseDto getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(WarehouseDto warehouse) {
+        this.warehouse = warehouse;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    public long getOrderTime() {
+        return orderTime;
+    }
+
+    public void setOrderTime(long orderTime) {
+        this.orderTime = orderTime;
+    }
 }

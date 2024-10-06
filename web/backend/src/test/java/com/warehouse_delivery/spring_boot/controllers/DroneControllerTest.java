@@ -1,90 +1,157 @@
 package com.warehouse_delivery.spring_boot.controllers;
 
 import com.warehouse_delivery.spring_boot.dto.DroneDto;
-import com.warehouse_delivery.spring_boot.repositories.DroneRepository;
+import com.warehouse_delivery.spring_boot.enums.DroneStatus;
 import com.warehouse_delivery.spring_boot.services.DroneService;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
+import com.warehouse_delivery.spring_boot.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
 
-/**
- * Test class for testing the Drone REST API.
- * It contains unit tests for retrieving drone details and all drones.
- */
-@SpringBootTest
-@AutoConfigureMockMvc
-public class DroneControllerTest {
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-    @Autowired
-    private DroneRepository droneRepository;
+class DroneControllerTest {
 
-    @Autowired
+    @Mock
     private DroneService droneService;
 
-    @Autowired
-    private EntityManager entityManager;
+    @InjectMocks
+    private DroneController droneController;
 
-    @Autowired
-    private MockMvc mvc;
+    private MockMvc mockMvc;
 
     private DroneDto testDroneOne;
 
-    /**
-     * Set up method to run before each test case.
-     * Deletes all drones from the repository, resets the sequence of the drone ID to 1,
-     * and creates a test drone to be used for tests.
-     */
     @BeforeEach
-    public void setUp() {
-        // Delete all drones currently in test repo to check native ID sequencing and be consistent
-        droneRepository.deleteAll();
-        entityManager.createNativeQuery("ALTER SEQUENCE drone_id_seq RESTART WITH 1").executeUpdate();
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(droneController).build();
 
-        // Create a test drone for us to check requirements against
-        DroneDto testDroneOne = new DroneDto();
+        testDroneOne = new DroneDto();
+        testDroneOne.setId(1L);
         testDroneOne.setName("Delivery Drone A");
-        testDroneOne.setId(1L);  // Use 1L for consistent testing
-        this.testDroneOne = droneService.registerDrone(testDroneOne);
+        testDroneOne.setStatus(DroneStatus.IN_TRANSIT);
+        testDroneOne.setLastLatitudeLocation(38.89511);
+        testDroneOne.setLastLongitudeLocation(-77.03637);
+        testDroneOne.setBatteryLife(85.5);
+        testDroneOne.setLastMaintenanceDate(LocalDateTime.now().minusDays(10));
+        testDroneOne.setConnectedToSystem(true);
+        testDroneOne.setPackages(Collections.emptyList());
     }
 
-    /**
-     * Test case for testing the GET request to retrieve a specific drone by ID.
-     * Verifies that the returned drone has the correct ID and name.
-     *
-     * @throws Exception if any error occurs during the request
-     */
     @Test
-    @Transactional
-    public void testGetDrone() throws Exception {
-        mvc.perform(get("/api/drone/" + testDroneOne.getId()).accept(MediaType.APPLICATION_JSON))
+    void testGetDrone() throws Exception {
+        when(droneService.getDrone(1L)).thenReturn(testDroneOne);
+
+        mockMvc.perform(get("/api/drone/1")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value("Delivery Drone A"));
+                .andExpect(jsonPath("$.name").value("Delivery Drone A"))
+                .andExpect(jsonPath("$.status").value("IN_TRANSIT"))
+                .andExpect(jsonPath("$.lastLatitudeLocation").value(38.89511))
+                .andExpect(jsonPath("$.lastLongitudeLocation").value(-77.03637))
+                .andExpect(jsonPath("$.batteryLife").value(85.5))
+                .andExpect(jsonPath("$.connectedToSystem").value(true))
+                .andExpect(jsonPath("$.lastMaintenanceDate").exists());
+
+        verify(droneService, times(1)).getDrone(1L);
     }
 
-    /**
-     * Test case for testing the GET request to retrieve all drones.
-     * Verifies that the length of the response array is 1 and that the first drone has the correct ID and name.
-     *
-     * @throws Exception if any error occurs during the request
-     */
     @Test
-    @Transactional
-    public void testGetAllDrones() throws Exception {
-        mvc.perform(get("/api/drone").accept(MediaType.APPLICATION_JSON))
+    void testGetAllDrones() throws Exception {
+        when(droneService.getAllDrones()).thenReturn(Arrays.asList(testDroneOne));
+
+        mockMvc.perform(get("/api/drone")
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].name").value("Delivery Drone A"));
+                .andExpect(jsonPath("$[0].name").value("Delivery Drone A"))
+                .andExpect(jsonPath("$[0].status").value("IN_TRANSIT"))
+                .andExpect(jsonPath("$[0].lastLatitudeLocation").value(38.89511))
+                .andExpect(jsonPath("$[0].lastLongitudeLocation").value(-77.03637))
+                .andExpect(jsonPath("$[0].batteryLife").value(85.5))
+                .andExpect(jsonPath("$[0].connectedToSystem").value(true));
+
+        verify(droneService, times(1)).getAllDrones();
+    }
+
+    @Test
+    void testRegisterDrone() throws Exception {
+        when(droneService.registerDrone(any(DroneDto.class))).thenReturn(testDroneOne);
+
+        DroneDto newDrone = new DroneDto();
+        newDrone.setName("New Drone");
+        newDrone.setStatus(DroneStatus.IDLE);
+        newDrone.setLastLatitudeLocation(40.7128);
+        newDrone.setLastLongitudeLocation(-74.0060);
+        newDrone.setBatteryLife(100);
+        newDrone.setConnectedToSystem(true);
+
+        mockMvc.perform(post("/api/drone")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.asJsonString(newDrone)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Delivery Drone A"))
+                .andExpect(jsonPath("$.status").value("IN_TRANSIT"))
+                .andExpect(jsonPath("$.lastLatitudeLocation").value(38.89511))
+                .andExpect(jsonPath("$.lastLongitudeLocation").value(-77.03637))
+                .andExpect(jsonPath("$.batteryLife").value(85.5))
+                .andExpect(jsonPath("$.connectedToSystem").value(true));
+
+        verify(droneService, times(1)).registerDrone(any(DroneDto.class));
+    }
+
+    @Test
+    void testUpdateDrone() throws Exception {
+        DroneDto updatedDrone = new DroneDto();
+        updatedDrone.setId(1L);
+        updatedDrone.setName("Updated Drone");
+        updatedDrone.setStatus(DroneStatus.IDLE);
+        updatedDrone.setLastLatitudeLocation(37.7749);
+        updatedDrone.setLastLongitudeLocation(-122.4194);
+        updatedDrone.setBatteryLife(90);
+        updatedDrone.setConnectedToSystem(false);
+
+        when(droneService.updateDrone(eq(1L), any(DroneDto.class))).thenReturn(updatedDrone);
+
+        mockMvc.perform(put("/api/drone/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.asJsonString(updatedDrone)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("Updated Drone"))
+                .andExpect(jsonPath("$.status").value("IDLE"))
+                .andExpect(jsonPath("$.lastLatitudeLocation").value(37.7749))
+                .andExpect(jsonPath("$.lastLongitudeLocation").value(-122.4194))
+                .andExpect(jsonPath("$.batteryLife").value(90))
+                .andExpect(jsonPath("$.connectedToSystem").value(false));
+
+        verify(droneService, times(1)).updateDrone(eq(1L), any(DroneDto.class));
+    }
+
+    @Test
+    void testDeleteDrone() throws Exception {
+        doNothing().when(droneService).deleteDrone(1L);
+
+        mockMvc.perform(delete("/api/drone/1"))
+                .andExpect(status().isNoContent());
+
+        verify(droneService, times(1)).deleteDrone(1L);
     }
 }
