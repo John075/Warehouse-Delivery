@@ -4,6 +4,9 @@
 
 This project is a simulation platform for managing a fleet of drones performing autonomous package deliveries. Built on ROS (Robot Operating System) and simulated in Gazebo, the system allows operators to monitor drone telemetry, assign deliveries, and observe real-time drone paths through an easy-to-use web interface. Although currently designed for simulation, the long-term goal is to make the system adaptable for real-life drone operations from the web interface.
 
+###  Images
+![Web Panel](./resources/web-panel.png "Web Panel")
+
 ### Key Features
 
 The system offers real-time drone telemetry, providing insights into battery status, GPS location, and the drone’s current task (whether delivering a package or returning to base). Drones autonomously plan and adjust their delivery routes in response to dynamic obstacles using 3D occupancy mapping. The intuitive React and Bootstrap interface makes it easy for operators to manage the fleet without needing deep technical knowledge. To ensure reliability, the system includes a CI/CD pipeline to test all aspects of the system, automating testing and deployment.
