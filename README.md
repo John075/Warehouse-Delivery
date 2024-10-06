@@ -1,3 +1,3 @@
 ## Warehouse Delivery Project ##
-IDEA: Have a fleet of autonomous drones deliver packages from a warehouse, which can be controlled by a Django REST API.
-
+Fleet of autonomous drones will be controlled by a REST API in Spring Boot, which has a React/Bootstrap based interface.
+More info will be posted soon

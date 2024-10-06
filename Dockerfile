@@ -40,7 +40,7 @@ RUN rosdep update
 ARG CACHE_BUSTER
 ARG GIT_CLONE_COMMIT=main
 RUN echo "Cache Bust: $CACHE_BUSTER" && git clone -b $GIT_CLONE_COMMIT --recurse-submodules https://github.com/John075/Warehouse-Delivery.git /root/catkin_ws
-WORKDIR /root/catkin_ws
+WORKDIR /root/catkin_ws/drone-software/
 
 # Install any more needed dependencies
 RUN rosdep install --from-paths src --ignore-src -r -y --rosdistro melodic
