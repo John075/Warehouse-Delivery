@@ -1,0 +1,42 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.App {
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+nav .navbar-brand {
+    font-size: 1.75rem;
+}
+
+.welcome-page {
+    margin-top: 50px;
+}
+
+.welcome-page h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.welcome-page p.lead {
+    font-size: 1.25rem;
+}
+
+.welcome-page .btn-lg {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+}
+
+main h2 {
+    margin-top: 0;
+}
+
+ul.list-group {
+    margin-top: 1rem;
+}

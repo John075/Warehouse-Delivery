@@ -46,3 +46,5 @@ logs
 .idea
 .catkin_workspace
 .DS_Store
+*.properties
+.obsidian
