@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(hector_moveit_exploration)
+project(warehouse_delivery)
 
 set(CMAKE_CXX_FLAGS "-std=c++11")
 
@@ -38,10 +38,10 @@ endif()
 
 include_directories(include ${OCTOMAP_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS})
 
-add_executable(hector_explorer src/Explorer.cpp src/explorer_node.cpp)
-target_compile_options(hector_explorer PRIVATE ${OpenMP_FLAGS} ${CMAKE_CXX_FLAGS})
-target_link_libraries(hector_explorer ${OCTOMAP_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBS})
-add_dependencies(hector_explorer hector_uav_msgs_generate_messages hector_moveit_actions_generate_messages gazebo_ros_link_attacher)
+add_executable(delivery_node src/Explorer.cpp src/explorer_node.cpp)
+target_compile_options(delivery_node PRIVATE ${OpenMP_FLAGS} ${CMAKE_CXX_FLAGS})
+target_link_libraries(delivery_node ${OCTOMAP_LIBRARIES} ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBS})
+add_dependencies(delivery_node hector_uav_msgs_generate_messages hector_moveit_actions_generate_messages gazebo_ros_link_attacher)
 
 catkin_install_python(PROGRAMS
         test/test_explorer.py   # Path to your script

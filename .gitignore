@@ -48,3 +48,4 @@ logs
 .DS_Store
 *.properties
 .obsidian
+cmake-build-debug

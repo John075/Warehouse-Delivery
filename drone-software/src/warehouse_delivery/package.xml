@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>hector_moveit_exploration</name>
+  <name>warehouse_delivery</name>
   <version>0.0.0</version>
-  <description>The hector_moveit_exploration package</description>
+  <description>The warehouse_delivery package</description>
 
-  <author email="tahsincankose@gmail.com">Tahsincan Köse</author>
-  <maintainer email="tahsincankose@gmail.com">Tahsincan Köse</maintainer>
+  <author email="jkaczma@ncsu.edu">John Kaczman</author>
+  <maintainer email="jkaczma@ncsu.edu">John Kaczman</maintainer>
 
   <license>BSD</license>
 

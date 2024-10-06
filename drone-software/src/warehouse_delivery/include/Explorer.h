@@ -10,7 +10,7 @@
 #include <geometry_msgs/Pose.h>
 #include <std_msgs/Float64.h>
 #include <nav_msgs/Odometry.h>
-#include "hector_moveit_exploration/MoveAction.h"
+#include "warehouse_delivery/MoveAction.h"
 #include <octomap_msgs/conversions.h>
 
 #include <moveit_msgs/DisplayTrajectory.h>
@@ -87,7 +87,7 @@ class Quadrotor{
 
         void collisionCallback(const hector_moveit_actions::ExecuteDroneTrajectoryFeedbackConstPtr& feedback);
 
-        void moveCallback(const hector_moveit_exploration::MoveAction::ConstPtr& msg);
+        void moveCallback(const warehouse_delivery::MoveAction::ConstPtr& msg);
 
         void go(double x, double y, double z);
     

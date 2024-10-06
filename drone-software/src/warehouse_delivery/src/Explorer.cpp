@@ -11,7 +11,7 @@ Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("/action/trajector
     base_sub = nh.subscribe<nav_msgs::Odometry>("/ground_truth/state", 10, &Quadrotor::poseCallback, this);
     plan_sub = nh.subscribe<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1,
                                                             &Quadrotor::planCallback, this);
-    move_sub = nh.subscribe<hector_moveit_exploration::MoveAction>("/drone/do_action", 1, &Quadrotor::moveCallback, this);
+    move_sub = nh.subscribe<warehouse_delivery::MoveAction>("/drone/do_action", 1, &Quadrotor::moveCallback, this);
 
     attach_service = nh.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/attach");
 
@@ -214,7 +214,7 @@ void Quadrotor::takeoff() {
     ROS_INFO("Takeoff successful");
 }
 
-void Quadrotor::moveCallback(const hector_moveit_exploration::MoveAction::ConstPtr &msg)
+void Quadrotor::moveCallback(const warehouse_delivery::MoveAction::ConstPtr &msg)
 {
     ROS_INFO("Received coordinates: x = %f, y = %f, z = %f", msg->x, msg->y, msg->z);
     ROS_INFO("Action: %s", msg->action.c_str());

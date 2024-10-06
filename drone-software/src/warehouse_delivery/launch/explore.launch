@@ -1,6 +1,6 @@
 <launch>
     <node name="trajectory_controller" pkg="hector_moveit_actions" type="trajectory_controller" respawn="false" output="screen"/>
-    <node name="hector_explorer" pkg="hector_moveit_exploration" type="hector_explorer" respawn="false" output="screen" launch-prefix="valgrind">
+    <node name="delivery_node" pkg="warehouse_delivery" type="warehouse_delivery" respawn="false" output="screen" launch-prefix="valgrind">
         <param name="/planning_plugin" value="ompl_interface/OMPLPlanner"/>
     </node>
 </launch>
