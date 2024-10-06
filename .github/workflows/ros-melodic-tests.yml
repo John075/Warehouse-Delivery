@@ -53,7 +53,7 @@ jobs:
 
     - name: Run tests inside the container
       run: |
-        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "source /root/catkin_ws/devel/setup.bash && /root/catkin_ws/drone-software/scripts/start_tests.sh"
+        docker exec ${{ env.CONTAINER_ID }} /bin/bash -c "source /root/catkin_ws/drone-software/devel/setup.bash && /root/catkin_ws/drone-software/scripts/start_tests.sh"
       continue-on-error: true
 
     - name: Stop background process and cleanup
