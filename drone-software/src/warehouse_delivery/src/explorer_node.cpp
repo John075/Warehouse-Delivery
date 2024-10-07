@@ -4,7 +4,7 @@
 int main(int argc, char** argv)
 {
 
-    ros::init(argc, argv, "warehouse_delivery");
+    ros::init(argc, argv, "delivery_node");
     ros::AsyncSpinner spinner(1);
     spinner.start();
     ros::NodeHandle node_handle("~");
