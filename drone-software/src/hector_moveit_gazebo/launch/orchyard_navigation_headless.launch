@@ -49,7 +49,7 @@
   <param name="grid_size" type="double" value="13"/>
 
   <node name="trajectory_controller" pkg="hector_moveit_actions" type="trajectory_controller" respawn="false" output="screen"/>
-  <node name="warehouse_delivery" pkg="warehouse_delivery" type="warehouse_delivery" respawn="false" output="screen" launch-prefix="gdb -ex run --args">
+  <node name="delivery_node" pkg="warehouse_delivery" type="warehouse_delivery" respawn="false" output="screen" launch-prefix="gdb -ex run --args">
       <param name="/planning_plugin" value="ompl_interface/OMPLPlanner"/>
   </node>
 
