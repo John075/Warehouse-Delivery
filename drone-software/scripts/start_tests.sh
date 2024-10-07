@@ -1,2 +1,2 @@
 #!/bin/bash
-python src/hector_moveit_exploration/test/test_explorer.py
+python src/warehouse_delivery/test/test_explorer.py
