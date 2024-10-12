@@ -1,8 +1,10 @@
 package com.warehouse_delivery.spring_boot.services.impl;
 
+import com.warehouse_delivery.spring_boot.broadcaster.DroneUpdateBroadcaster;
 import com.warehouse_delivery.spring_boot.dto.PackageDto;
 import com.warehouse_delivery.spring_boot.entity.Drone;
 import com.warehouse_delivery.spring_boot.entity.Package;
+import com.warehouse_delivery.spring_boot.mapper.DroneMapper;
 import com.warehouse_delivery.spring_boot.mapper.PackageMapper;
 import com.warehouse_delivery.spring_boot.messages.errors.ResourceNotFoundException;
 import com.warehouse_delivery.spring_boot.repositories.DroneRepository;
@@ -19,11 +21,13 @@ public class PackageServiceImpl implements PackageService {
 
     final PackageRepository packageRepository;
     final DroneRepository droneRepository;
+    final DroneUpdateBroadcaster broadcaster;
 
     @Autowired
-    public PackageServiceImpl(DroneRepository droneRepository, PackageRepository packageRepository) {
+    public PackageServiceImpl(DroneRepository droneRepository, PackageRepository packageRepository, DroneUpdateBroadcaster broadcaster) {
         this.droneRepository = droneRepository;
         this.packageRepository = packageRepository;
+        this.broadcaster = broadcaster;
     }
 
     @Override
@@ -75,6 +79,7 @@ public class PackageServiceImpl implements PackageService {
             if (!packageExists) {
                 assignedDrone.getPackages().add(updatedPackage);
                 droneRepository.save(assignedDrone);
+                broadcaster.broadcastUpdate(assignedDrone.getId(), DroneMapper.mapToDroneDto(assignedDrone, true));
             }
         }
         return PackageMapper.mapToPackageDto(updatedPackage, true);
