@@ -18,6 +18,7 @@ function DroneList() {
     const [warehouses, setWarehouses] = useState([]);
     const [droneModels, setDroneModels] = useState([]);
     const [successMessage, setSuccessMessage] = useState('');
+    const [editingDrone, setEditingDrone] = useState(null);
 
     useEffect(() => {
         DroneService.getDrones().then((response) => {
@@ -39,6 +40,16 @@ function DroneList() {
         });
     }, []);
 
+    useEffect(() => {
+        if (editingDrone) {
+            setDroneName(editingDrone.name || '');
+            setStatus(editingDrone.status || 'IN_TRANSIT');
+            setBatteryLife(editingDrone.batteryLife || 100);
+            setWarehouseId(editingDrone.warehouse?.id || '');
+            setDroneModelId(editingDrone.model?.id || '');
+        }
+    }, [editingDrone]);
+
     const handleRegisterClick = () => {
         setShowModal(true);
     };
@@ -51,6 +62,34 @@ function DroneList() {
         setWarehouseId('');
         setDroneModelId('');
         setSuccessMessage('');
+    };
+
+    const handleEditClick = (drone) => {
+        setEditingDrone(drone);
+        setShowModal(true);
+    };
+
+    const handleUpdateDrone = (e) => {
+        e.preventDefault();
+
+        const updatedDrone = {
+            ...editingDrone,
+            name: droneName,
+            status,
+            batteryLife,
+            warehouse: warehouses.find(warehouse => warehouse.id === parseInt(warehouseId)),
+            model: droneModels.find(model => model.id === parseInt(droneModelId)),
+        };
+
+        DroneService.updateDrone(editingDrone.id, updatedDrone)
+            .then(() => {
+                setDrones(drones.map(d => (d.id === editingDrone.id ? updatedDrone : d)));
+                setSuccessMessage('Drone successfully updated!');
+                setTimeout(handleCloseModal, 1500);
+            })
+            .catch((err) => {
+                setError('Error updating drone: ' + err.message);
+            });
     };
 
     const handleRegisterDrone = (e) => {
@@ -127,19 +166,22 @@ function DroneList() {
                                     <strong>Connected to System:</strong> {drone.connectedToSystem ? 'Yes' : 'No'} <br />
                                     <strong>Alerts:</strong> {drone.alerts?.length > 0 ? drone.alerts.join(', ') : 'No alerts'}
                                 </Card.Text>
+                                <Button variant="secondary" onClick={() => handleEditClick(drone)}>
+                                    Edit
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>
                 ))}
             </Row>
 
-            {/* Modal for Registering Drone */}
+            {/* Modal for Registering or Editing Drone */}
             <Modal show={showModal} onHide={handleCloseModal} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Register a New Drone</Modal.Title>
+                    <Modal.Title>{editingDrone ? 'Edit Drone' : 'Register a New Drone'}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Form onSubmit={handleRegisterDrone}>
+                    <Form onSubmit={editingDrone ? handleUpdateDrone : handleRegisterDrone}>
                         <Form.Group controlId="droneName">
                             <Form.Label>Drone Name</Form.Label>
                             <Form.Control
@@ -191,7 +233,7 @@ function DroneList() {
                         </Form.Group>
 
                         <Button variant="success" type="submit" className="mt-3 w-100">
-                            Register Drone
+                            {editingDrone ? 'Update Drone' : 'Register Drone'}
                         </Button>
                     </Form>
                 </Modal.Body>

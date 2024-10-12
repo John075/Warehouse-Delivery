@@ -1,5 +1,6 @@
 package com.warehouse_delivery.spring_boot.entity;
 
+import com.warehouse_delivery.spring_boot.broadcaster.DroneEntityListener;
 import com.warehouse_delivery.spring_boot.enums.DroneStatus;
 import jakarta.persistence.*;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 @Entity
+@EntityListeners(DroneEntityListener.class)
 public class Drone {
 
     @Id

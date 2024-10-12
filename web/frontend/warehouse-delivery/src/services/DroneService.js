@@ -10,6 +10,10 @@ class DroneService {
     registerDrone(drone) {
         return axios.post(API_URL, drone)
     }
+
+    updateDrone(droneId, drone) {
+        return axios.put(API_URL + "/" + droneId, drone);
+    }
 }
 
 const droneServiceInstance = new DroneService();

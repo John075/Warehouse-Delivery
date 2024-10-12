@@ -1,10 +1,13 @@
 package com.warehouse_delivery.spring_boot.controllers;
 
+import com.warehouse_delivery.spring_boot.broadcaster.DroneUpdateBroadcaster;
 import com.warehouse_delivery.spring_boot.dto.DroneDto;
 import com.warehouse_delivery.spring_boot.services.DroneService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -14,10 +17,12 @@ import java.util.List;
 public class DroneController {
 
     private DroneService droneService;
+    private DroneUpdateBroadcaster broadcaster;
 
     @Autowired
-    public DroneController(final DroneService service) {
+    public DroneController(final DroneService service, final DroneUpdateBroadcaster broadcaster) {
         this.droneService = service;
+        this.broadcaster = broadcaster;
     }
 
     /**
@@ -78,5 +83,16 @@ public class DroneController {
     public ResponseEntity<Void> deleteDrone(@PathVariable("id") final Long id) {
         droneService.deleteDrone(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Provide a SseEmitter to the client to provide live server-provided updates when the entity changes
+     *
+     * @param id The ID of the drone to be connected to
+     * @return SseEmitter with drone related info to the ID requested
+     */
+    @GetMapping(value = "{id}/updates", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamDroneUpdates(@PathVariable("id") final Long id) {
+        return broadcaster.registerEmitter(id, droneService.getDrone(id));
     }
 }
