@@ -35,13 +35,13 @@ public class DroneUpdateBroadcaster {
 
     public void broadcastUpdate(long droneId, DroneDto droneState) {
         List<SseEmitter> emitters = emitterMap.get(droneId);
+        System.out.println("Sending event to " + (emitters == null ? "0" : emitters.size()) + " emitter(s).");
 
         if (emitters == null) {
             return; // No emitters registered for this drone ID
         }
 
         List<SseEmitter> emittersNotListening = new ArrayList<>();
-
         emitters.forEach(emitter -> {
             try {
                 emitter.send(SseEmitter.event().name("drone-update").data(droneState));

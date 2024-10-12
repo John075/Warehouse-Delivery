@@ -56,6 +56,7 @@ public class PackageServiceImpl implements PackageService {
 
             assignedDrone.getPackages().add(savedPackage);
             droneRepository.save(assignedDrone);
+            broadcaster.broadcastUpdate(assignedDrone.getId(), DroneMapper.mapToDroneDto(assignedDrone, true));
         }
 
         return PackageMapper.mapToPackageDto(savedPackage, true);
