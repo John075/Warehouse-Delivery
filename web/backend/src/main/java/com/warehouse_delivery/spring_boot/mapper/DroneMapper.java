@@ -10,7 +10,7 @@ public class DroneMapper {
 
     }
 
-    public static DroneDto mapToDroneDto(final Drone drone) {
+    public static DroneDto mapToDroneDto(final Drone drone, boolean includePackageDetails) {
         final DroneDto droneDto = new DroneDto();
 
         droneDto.setId(drone.getId());
@@ -22,9 +22,9 @@ public class DroneMapper {
         droneDto.setConnectedToSystem(drone.isConnectedToSystem());
         droneDto.setLastMaintenanceDate(drone.getLastMaintenanceDate());
 
-        if (drone.getPackages() != null) {
+        if (drone.getPackages() != null && includePackageDetails) {
             droneDto.setPackages(
-                    drone.getPackages().stream().map(PackageMapper::mapToPackageDto).collect(Collectors.toList())
+                    drone.getPackages().stream().map((packageEntity) -> PackageMapper.mapToPackageDto(packageEntity, false)).collect(Collectors.toList())
             );
         }
 
@@ -35,7 +35,7 @@ public class DroneMapper {
         return droneDto;
     }
 
-    public static Drone mapToDrone(final DroneDto droneDto) {
+    public static Drone mapToDrone(final DroneDto droneDto, boolean includePackageDetails) {
         final Drone drone = new Drone();
 
         drone.setId(droneDto.getId());
@@ -47,9 +47,9 @@ public class DroneMapper {
         drone.setConnectedToSystem(droneDto.isConnectedToSystem());
         drone.setLastMaintenanceDate(droneDto.getLastMaintenanceDate());
 
-        if (droneDto.getPackages() != null) {
+        if (droneDto.getPackages() != null && includePackageDetails) {
             drone.setPackages(
-                    droneDto.getPackages().stream().map(PackageMapper::mapToPackage).collect(Collectors.toList())
+                    droneDto.getPackages().stream().map((packageDto) -> PackageMapper.mapToPackage(packageDto,false)).collect(Collectors.toList())
             );
         }
 

@@ -11,9 +11,6 @@ public class Warehouse {
 
     private String name;
 
-    private double latitude;
-    private double longitude;
-
     @Embedded
     private Address address;
 
@@ -23,10 +20,8 @@ public class Warehouse {
 
     public Warehouse() {}
 
-    public Warehouse(String name, double latitude, double longitude, Address address, int capacity) {
+    public Warehouse(String name, Address address, int capacity) {
         this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.address = address;
         this.capacity = capacity;
     }
@@ -45,22 +40,6 @@ public class Warehouse {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 
     public Address getAddress() {

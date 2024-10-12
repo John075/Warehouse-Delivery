@@ -9,9 +9,8 @@ import com.warehouse_delivery.spring_boot.services.DroneModelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class DroneModelServiceImpl implements DroneModelService {
@@ -27,6 +26,7 @@ public class DroneModelServiceImpl implements DroneModelService {
     @Override
     public List<DroneModelDto> getAllDroneModels() {
         List<DroneModel> droneModels = droneModelRepository.findAll();
+        droneModels.sort(Comparator.comparing(DroneModel::getId));
         return droneModels.stream()
                 .map(DroneModelMapper::mapToDroneModelDto)
                 .toList();

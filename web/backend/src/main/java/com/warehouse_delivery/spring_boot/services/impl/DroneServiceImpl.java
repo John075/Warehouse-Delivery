@@ -9,6 +9,7 @@ import com.warehouse_delivery.spring_boot.services.DroneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -25,20 +26,22 @@ public class DroneServiceImpl implements DroneService {
     public DroneDto getDrone(Long id) {
         Drone drone = droneRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Drone not found with id: " + id));
-        return DroneMapper.mapToDroneDto(drone);
+
+        return DroneMapper.mapToDroneDto(drone, true);
     }
 
     @Override
     public List<DroneDto> getAllDrones() {
         List<Drone> drones = droneRepository.findAll();
-        return drones.stream().map(DroneMapper::mapToDroneDto).toList();
+        drones.sort(Comparator.comparing(Drone::getId));
+        return drones.stream().map((droneDto) -> DroneMapper.mapToDroneDto(droneDto, true)).toList();
     }
 
     @Override
     public DroneDto registerDrone(DroneDto droneDto) {
-        Drone newDrone = DroneMapper.mapToDrone(droneDto);
+        Drone newDrone = DroneMapper.mapToDrone(droneDto, true);
         droneRepository.save(newDrone);
-        return DroneMapper.mapToDroneDto(newDrone);
+        return DroneMapper.mapToDroneDto(newDrone, true);
     }
 
     @Override
@@ -46,8 +49,10 @@ public class DroneServiceImpl implements DroneService {
         droneRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Drone not found with id: " + id));
 
-        Drone updatedDrone = droneRepository.save(DroneMapper.mapToDrone(droneDto));
-        return DroneMapper.mapToDroneDto(updatedDrone);
+        Drone mappedDrone = DroneMapper.mapToDrone(droneDto, true);
+        Drone updatedDrone = droneRepository.save(mappedDrone);
+
+        return DroneMapper.mapToDroneDto(updatedDrone, true);
     }
 
     @Override

@@ -60,7 +60,7 @@ class DroneServiceTest {
         warehouse.setName("Main Warehouse");
         testDrone.setWarehouse(warehouse);
 
-        testDroneDto = DroneMapper.mapToDroneDto(testDrone);
+        testDroneDto = DroneMapper.mapToDroneDto(testDrone, true);
     }
 
     @Test
@@ -126,7 +126,7 @@ class DroneServiceTest {
         testDroneDto.setBatteryLife(80.0);
 
         when(droneRepository.findById(anyLong())).thenReturn(Optional.of(testDrone));
-        when(droneRepository.save(any())).thenReturn(DroneMapper.mapToDrone(testDroneDto));
+        when(droneRepository.save(any())).thenReturn(DroneMapper.mapToDrone(testDroneDto, true));
 
         DroneDto result = droneService.updateDrone(1L, testDroneDto);
 

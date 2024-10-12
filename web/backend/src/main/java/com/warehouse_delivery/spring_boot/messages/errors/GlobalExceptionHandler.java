@@ -21,6 +21,7 @@ public class GlobalExceptionHandler {
     //Fallback handler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception ex) {
+        ex.printStackTrace();
         return new ResponseEntity<>("Error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -38,8 +38,8 @@ class WarehouseServiceTest {
         MockitoAnnotations.openMocks(this);
 
         // Initialize test warehouse and warehouse DTO
-        Address address = new Address("123 Street", "City", "State", "12345", "Country");
-        testWarehouse = new Warehouse("Main Warehouse", 40.7128, -74.0060, address, 1000);
+        Address address = new Address(40.7128, -74.0060);
+        testWarehouse = new Warehouse("Main Warehouse", address, 1000);
         testWarehouse.setId(1L);
 
         testWarehouseDto = WarehouseMapper.mapToWarehouseDto(testWarehouse);
@@ -57,7 +57,7 @@ class WarehouseServiceTest {
         assertNotNull(warehouseDtos);
         assertEquals(1, warehouseDtos.size());
         assertEquals("Main Warehouse", warehouseDtos.get(0).getName());
-        assertEquals(40.7128, warehouseDtos.get(0).getLatitude());
+        assertEquals(40.7128, warehouseDtos.get(0).getAddress().getLatitude());
 
         verify(warehouseRepository, times(1)).findAll();
     }
@@ -71,7 +71,7 @@ class WarehouseServiceTest {
         assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("Main Warehouse", result.getName());
-        assertEquals(40.7128, result.getLatitude());
+        assertEquals(40.7128, result.getAddress().getLatitude());
 
         verify(warehouseRepository, times(1)).findById(1L);
     }

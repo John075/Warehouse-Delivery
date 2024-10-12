@@ -57,8 +57,7 @@ public class PackageControllerTest {
         testWarehouse = new WarehouseDto();
         testWarehouse.setId(1L);
         testWarehouse.setName("Main Warehouse");
-        testWarehouse.setLatitude(40.7128);
-        testWarehouse.setLongitude(-74.0060);
+        testWarehouse.setAddress(new Address(40.7128, -74.0060));
         testWarehouse.setCapacity(100);
 
         testPackage = new PackageDto();
@@ -69,7 +68,7 @@ public class PackageControllerTest {
         testPackage.setOrderTime(System.currentTimeMillis());
         testPackage.setWarehouse(testWarehouse); // Assign the test warehouse
         testPackage.setAssignedDrone(testDrone); // Assign the test drone
-        testPackage.setDestination(new Address("123 Street", "City", "State", "12345", "Country"));
+        testPackage.setDestination(new Address(10.123, 11.245));
     }
 
     @Test
@@ -84,7 +83,7 @@ public class PackageControllerTest {
                 .andExpect(jsonPath("$.priority").value(1))
                 .andExpect(jsonPath("$.assignedDrone.name").value("Delivery Drone A"))
                 .andExpect(jsonPath("$.warehouse.name").value("Main Warehouse"))
-                .andExpect(jsonPath("$.destination.street").value("123 Street"));
+                .andExpect(jsonPath("$.destination.latitude").value(10.123));
     }
 
     @Test

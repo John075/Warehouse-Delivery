@@ -8,7 +8,7 @@ public class PackageMapper {
     public PackageMapper() {
     }
 
-    public static PackageDto mapToPackageDto(final Package packageEntity) {
+    public static PackageDto mapToPackageDto(final Package packageEntity, boolean includeDroneDetails) {
         final PackageDto packageDto = new PackageDto();
 
         packageDto.setId(packageEntity.getId());
@@ -18,8 +18,8 @@ public class PackageMapper {
         packageDto.setPriority(packageEntity.getPriority());
         packageDto.setOrderTime(packageEntity.getOrderTime());
 
-        if (packageEntity.getAssignedDrone() != null) {
-            packageDto.setAssignedDrone(DroneMapper.mapToDroneDto(packageEntity.getAssignedDrone()));
+        if (packageEntity.getAssignedDrone() != null && includeDroneDetails) {
+            packageDto.setAssignedDrone(DroneMapper.mapToDroneDto(packageEntity.getAssignedDrone(), false));
         }
 
         if (packageEntity.getWarehouse() != null) {
@@ -29,7 +29,7 @@ public class PackageMapper {
         return packageDto;
     }
 
-    public static Package mapToPackage(final PackageDto packageDto) {
+    public static Package mapToPackage(final PackageDto packageDto, boolean includeDroneDetails) {
         final Package packageEntity = new Package();
 
         packageEntity.setId(packageDto.getId());
@@ -39,8 +39,8 @@ public class PackageMapper {
         packageEntity.setPriority(packageDto.getPriority());
         packageEntity.setOrderTime(packageDto.getOrderTime());
 
-        if (packageDto.getAssignedDrone() != null) {
-            packageEntity.setAssignedDrone(DroneMapper.mapToDrone(packageDto.getAssignedDrone()));
+        if (packageDto.getAssignedDrone() != null && includeDroneDetails) {
+            packageEntity.setAssignedDrone(DroneMapper.mapToDrone(packageDto.getAssignedDrone(), false));
         }
 
         if (packageDto.getWarehouse() != null) {

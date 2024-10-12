@@ -2,18 +2,25 @@ import React, { useState, useEffect } from 'react';
 import PackageService from '../services/PackageService';
 import { Container, Table, Button, Spinner, Alert, Modal, Form } from 'react-bootstrap';
 import { FaPlus } from 'react-icons/fa';
+import DroneService from '../services/DroneService';
+import WarehouseService from "../services/WarehouseService";  // Assuming you have this service
 
 function PackageList() {
     const [packages, setPackages] = useState([]);
+    const [drones, setDrones] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [packageName, setPackageName] = useState('');
     const [assignedDrone, setAssignedDrone] = useState('');
+    const [warehouses, setWarehouses] = useState([]);
+    const [selectedWarehouse, setSelectedWarehouse] = useState('');
+    const [selectedPackage, setSelectedPackage] = useState(null);
     const [status, setStatus] = useState('');
     const [destination, setDestination] = useState({ street: '', city: '', state: '', zipCode: '', country: '' });
     const [priority, setPriority] = useState(0);
     const [successMessage, setSuccessMessage] = useState('');
+
 
     useEffect(() => {
         PackageService.getPackages().then((response) => {
@@ -24,9 +31,36 @@ function PackageList() {
             setError("There was an error fetching the package data.");
             setLoading(false);
         });
+
+        DroneService.getDrones()
+            .then((response) => {
+                setDrones(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching drones:", error);
+            });
+
+        WarehouseService.getWarehouses()
+            .then((response) => {
+                setWarehouses(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching warehouses:", error);
+            });
     }, []);
 
     const handleRegisterClick = () => {
+        setShowModal(true);
+    };
+
+    const handleEditClick = (pkg) => {
+        setPackageName(pkg.name);
+        setAssignedDrone(pkg.assignedDrone || '');
+        setSelectedWarehouse(pkg.warehouse || '');
+        setStatus(pkg.status);
+        setDestination(pkg.destination || { latitude: '', longitude: '' });
+        setPriority(pkg.priority);
+        setSelectedPackage(pkg);  // Mark the package being edited
         setShowModal(true);
     };
 
@@ -35,30 +69,48 @@ function PackageList() {
         setPackageName('');
         setAssignedDrone('');
         setStatus('');
-        setDestination({ street: '', city: '', state: '', zipCode: '', country: '' });
+        setDestination({ latitude: '', longitude: '' });
         setPriority(0);
+        setSelectedWarehouse('');
+        setSelectedPackage(null);  // Reset selected package for the next create action
         setSuccessMessage('');
     };
 
     const handleRegisterPackage = (e) => {
         e.preventDefault();
-        const newPackage = {
+        const updatedPackage = {
+            id: selectedPackage ? selectedPackage.id : undefined,
             name: packageName,
             assignedDrone: assignedDrone || null,
             status,
             destination,
             priority,
+            warehouse: selectedWarehouse || null,
         };
 
-        PackageService.registerPackage(newPackage)
-            .then(() => {
-                setSuccessMessage('Package successfully registered!');
-                setPackages([...packages, { ...newPackage, id: packages.length + 1 }]);
-                setTimeout(handleCloseModal, 1500);  // Close the modal after success
-            })
-            .catch((err) => {
-                setError('Error registering package: ' + err.message);
-            });
+        if (selectedPackage) {
+            PackageService.updatePackage(selectedPackage.id, updatedPackage)
+                .then(() => {
+                    setPackages(packages.map(pkg =>
+                        pkg.id === selectedPackage.id ? { ...updatedPackage, id: selectedPackage.id } : pkg
+                    ));
+                    setSuccessMessage('Package successfully updated!');
+                    setTimeout(handleCloseModal, 1500);
+                })
+                .catch((err) => {
+                    setError('Error updating package: ' + err.message);
+                });
+        } else {
+            PackageService.registerPackage(updatedPackage)
+                .then(() => {
+                    setSuccessMessage('Package successfully registered!');
+                    setPackages([...packages, { ...updatedPackage, id: packages.length + 1 }]);
+                    setTimeout(handleCloseModal, 1500);
+                })
+                .catch((err) => {
+                    setError('Error registering package: ' + err.message);
+                });
+        }
     };
 
     return (
@@ -102,9 +154,11 @@ function PackageList() {
                     <th>ID</th>
                     <th>Package Name</th>
                     <th>Assigned Drone</th>
+                    <th>Warehouse</th>
                     <th>Status</th>
                     <th>Destination</th>
                     <th>Priority</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -113,9 +167,18 @@ function PackageList() {
                         <td>{pkg.id}</td>
                         <td>{pkg.name}</td>
                         <td>{pkg.assignedDrone ? pkg.assignedDrone.name : 'Unassigned'}</td>
+                        <td>{pkg.warehouse ? pkg.warehouse.name : 'Not assigned'}</td>
                         <td>{pkg.status}</td>
-                        <td>{`${pkg.destination.street}, ${pkg.destination.city}, ${pkg.destination.state}`}</td>
+                        <td>{pkg.destination ? `${pkg.destination.latitude}, ${pkg.destination.longitude}` : 'N/A'}</td>
                         <td>{pkg.priority}</td>
+                        <td>
+                            <Button
+                                variant="success" type="submit"
+                                onClick={() => handleEditClick(pkg)}
+                            >
+                                Edit
+                            </Button>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
@@ -123,7 +186,7 @@ function PackageList() {
 
             <Modal show={showModal} onHide={handleCloseModal} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Register a New Package</Modal.Title>
+                    <Modal.Title>{selectedPackage ? "Edit Package" : "Register a New Package"}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleRegisterPackage}>
@@ -141,11 +204,39 @@ function PackageList() {
                         <Form.Group controlId="assignedDrone">
                             <Form.Label>Assigned Drone (Optional)</Form.Label>
                             <Form.Control
-                                type="text"
-                                placeholder="Enter drone ID (optional)"
-                                value={assignedDrone}
-                                onChange={(e) => setAssignedDrone(e.target.value)}
-                            />
+                                as="select"
+                                value={assignedDrone ? assignedDrone.id : ''}
+                                onChange={(e) => {
+                                    const selectedDrone = drones.find(drone => drone.id === parseInt(e.target.value));
+                                    setAssignedDrone(selectedDrone || null); // Update assignedDrone with the full object
+                                }}
+                            >
+                                <option value="">Select Drone</option>
+                                {drones.map(drone => (
+                                    <option key={drone.id} value={drone.id}>
+                                        {drone.name}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+
+                        <Form.Group controlId="warehouse">
+                            <Form.Label>Select Warehouse</Form.Label>
+                            <Form.Control
+                                as="select"
+                                value={selectedWarehouse ? selectedWarehouse.id : ''}
+                                onChange={(e) => {
+                                    const selected = warehouses.find(warehouse => warehouse.id === parseInt(e.target.value));
+                                    setSelectedWarehouse(selected || null);  // Store full warehouse object
+                                }}
+                            >
+                                <option value="">Select Warehouse</option>
+                                {warehouses.map(warehouse => (
+                                    <option key={warehouse.id} value={warehouse.id}>
+                                        {warehouse.name}
+                                    </option>
+                                ))}
+                            </Form.Control>
                         </Form.Group>
 
                         <Form.Group controlId="status">
@@ -165,38 +256,19 @@ function PackageList() {
                         <Form.Group controlId="destination">
                             <Form.Label>Destination</Form.Label>
                             <Form.Control
-                                type="text"
-                                placeholder="Street"
-                                value={destination.street}
-                                onChange={(e) => setDestination({ ...destination, street: e.target.value })}
+                                type="number"
+                                placeholder="Latitude"
+                                value={destination.latitude}
+                                onChange={(e) => setDestination({ ...destination, latitude: e.target.value })}
+                                required
                             />
                             <Form.Control
-                                type="text"
-                                placeholder="City"
-                                value={destination.city}
-                                onChange={(e) => setDestination({ ...destination, city: e.target.value })}
+                                type="number"
+                                placeholder="Longitude"
+                                value={destination.longitude}
+                                onChange={(e) => setDestination({ ...destination, longitude: e.target.value })}
                                 className="mt-2"
-                            />
-                            <Form.Control
-                                type="text"
-                                placeholder="State"
-                                value={destination.state}
-                                onChange={(e) => setDestination({ ...destination, state: e.target.value })}
-                                className="mt-2"
-                            />
-                            <Form.Control
-                                type="text"
-                                placeholder="Zip Code"
-                                value={destination.zipCode}
-                                onChange={(e) => setDestination({ ...destination, zipCode: e.target.value })}
-                                className="mt-2"
-                            />
-                            <Form.Control
-                                type="text"
-                                placeholder="Country"
-                                value={destination.country}
-                                onChange={(e) => setDestination({ ...destination, country: e.target.value })}
-                                className="mt-2"
+                                required
                             />
                         </Form.Group>
 
@@ -210,7 +282,7 @@ function PackageList() {
                         </Form.Group>
 
                         <Button variant="success" type="submit" className="mt-3 w-100">
-                            Register Package
+                            {selectedPackage ? "Update Package" : "Register Package"}
                         </Button>
                     </Form>
                 </Modal.Body>

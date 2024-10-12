@@ -10,6 +10,10 @@ class PackageService {
     registerPackage(packageEntity) {
         return axios.post(API_URL, packageEntity);
     }
+
+    updatePackage(id, updatedPackage) {
+        return axios.put(API_URL + "/" + id, updatedPackage);
+    }
 }
 
 const packageServiceInstance = new PackageService();

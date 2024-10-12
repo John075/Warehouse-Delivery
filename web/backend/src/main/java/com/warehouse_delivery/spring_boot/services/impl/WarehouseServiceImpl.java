@@ -9,6 +9,7 @@ import com.warehouse_delivery.spring_boot.services.WarehouseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -24,6 +25,7 @@ public class WarehouseServiceImpl implements WarehouseService {
      */
     public List<WarehouseDto> getAllWarehouses() {
         List<Warehouse> warehouses = warehouseRepository.findAll();
+        warehouses.sort(Comparator.comparing(Warehouse::getId));
         return warehouses.stream().map(WarehouseMapper::mapToWarehouseDto).toList();
     }
 

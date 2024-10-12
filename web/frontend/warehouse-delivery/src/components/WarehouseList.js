@@ -12,11 +12,6 @@ function WarehouseList() {
         name: '',
         latitude: '',
         longitude: '',
-        street: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: '',
         capacity: ''
     });
     const [successMessage, setSuccessMessage] = useState('');
@@ -42,11 +37,6 @@ function WarehouseList() {
             name: '',
             latitude: '',
             longitude: '',
-            street: '',
-            city: '',
-            state: '',
-            zipCode: '',
-            country: '',
             capacity: ''
         });
         setSuccessMessage('');
@@ -61,14 +51,9 @@ function WarehouseList() {
         e.preventDefault();
         const warehouseData = {
             name: newWarehouse.name,
-            latitude: parseFloat(newWarehouse.latitude),
-            longitude: parseFloat(newWarehouse.longitude),
             address: {
-                street: newWarehouse.street,
-                city: newWarehouse.city,
-                state: newWarehouse.state,
-                zipCode: newWarehouse.zipCode,
-                country: newWarehouse.country,
+                latitude: parseFloat(newWarehouse.latitude),
+                longitude: parseFloat(newWarehouse.longitude),
             },
             capacity: parseInt(newWarehouse.capacity, 10),
         };
@@ -125,7 +110,6 @@ function WarehouseList() {
                     <th>Name</th>
                     <th>Latitude</th>
                     <th>Longitude</th>
-                    <th>Address</th>
                     <th>Capacity</th>
                 </tr>
                 </thead>
@@ -134,11 +118,8 @@ function WarehouseList() {
                     <tr key={warehouse.id}>
                         <td>{warehouse.id}</td>
                         <td>{warehouse.name}</td>
-                        <td>{warehouse.latitude}</td>
-                        <td>{warehouse.longitude}</td>
-                        <td>
-                            {warehouse.address.street}, {warehouse.address.city}, {warehouse.address.state}, {warehouse.address.zipCode}, {warehouse.address.country}
-                        </td>
+                        <td>{warehouse.address ? warehouse.address.latitude : "Latitude N/A"}</td>
+                        <td>{warehouse.address ? warehouse.address.longitude : "Longitude N/A"}</td>
                         <td>{warehouse.capacity}</td>
                     </tr>
                 ))}
@@ -182,61 +163,6 @@ function WarehouseList() {
                                 placeholder="Enter longitude"
                                 name="longitude"
                                 value={newWarehouse.longitude}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="street" className="mt-3">
-                            <Form.Label>Street</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter street"
-                                name="street"
-                                value={newWarehouse.street}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="city" className="mt-3">
-                            <Form.Label>City</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter city"
-                                name="city"
-                                value={newWarehouse.city}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="state" className="mt-3">
-                            <Form.Label>State</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter state"
-                                name="state"
-                                value={newWarehouse.state}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="zipCode" className="mt-3">
-                            <Form.Label>Zip Code</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter zip code"
-                                name="zipCode"
-                                value={newWarehouse.zipCode}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="country" className="mt-3">
-                            <Form.Label>Country</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter country"
-                                name="country"
-                                value={newWarehouse.country}
                                 onChange={handleInputChange}
                                 required
                             />

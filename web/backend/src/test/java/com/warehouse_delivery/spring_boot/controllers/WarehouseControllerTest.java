@@ -47,12 +47,10 @@ public class WarehouseControllerTest {
         this.mockMvc = MockMvcBuilders.standaloneSetup(warehouseController).build();
 
         // Set up the test WarehouseDto
-        Address address = new Address("1234 Test St", "Test City", "TS", "12345", "Test Country");
+        Address address = new Address(37.7749, -122.4194);
         testWarehouse = new WarehouseDto();
         testWarehouse.setId(1L);
         testWarehouse.setName("Main Warehouse");
-        testWarehouse.setLatitude(37.7749);
-        testWarehouse.setLongitude(-122.4194);
         testWarehouse.setAddress(address);
         testWarehouse.setCapacity(500);
     }
@@ -67,10 +65,8 @@ public class WarehouseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Main Warehouse"))
-                .andExpect(jsonPath("$.latitude").value(37.7749))
-                .andExpect(jsonPath("$.longitude").value(-122.4194))
-                .andExpect(jsonPath("$.address.street").value("1234 Test St"))
-                .andExpect(jsonPath("$.address.city").value("Test City"))
+                .andExpect(jsonPath("$.address.latitude").value(37.7749))
+                .andExpect(jsonPath("$.address.longitude").value(-122.4194))
                 .andExpect(jsonPath("$.capacity").value(500));
     }
 
@@ -85,10 +81,8 @@ public class WarehouseControllerTest {
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].name").value("Main Warehouse"))
-                .andExpect(jsonPath("$[0].latitude").value(37.7749))
-                .andExpect(jsonPath("$[0].longitude").value(-122.4194))
-                .andExpect(jsonPath("$[0].address.street").value("1234 Test St"))
-                .andExpect(jsonPath("$[0].address.city").value("Test City"))
+                .andExpect(jsonPath("$[0].address.latitude").value(37.7749))
+                .andExpect(jsonPath("$[0].address.longitude").value(-122.4194))
                 .andExpect(jsonPath("$[0].capacity").value(500));
     }
 
@@ -105,10 +99,8 @@ public class WarehouseControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Main Warehouse"))
-                .andExpect(jsonPath("$.latitude").value(37.7749))
-                .andExpect(jsonPath("$.longitude").value(-122.4194))
-                .andExpect(jsonPath("$.address.street").value("1234 Test St"))
-                .andExpect(jsonPath("$.address.city").value("Test City"))
+                .andExpect(jsonPath("$.address.latitude").value(37.7749))
+                .andExpect(jsonPath("$.address.longitude").value(-122.4194))
                 .andExpect(jsonPath("$.capacity").value(500));
     }
 

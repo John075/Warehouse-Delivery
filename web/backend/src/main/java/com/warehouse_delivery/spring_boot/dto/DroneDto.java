@@ -1,5 +1,6 @@
 package com.warehouse_delivery.spring_boot.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.warehouse_delivery.spring_boot.enums.DroneStatus;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,8 @@ public class DroneDto {
     private boolean connectedToSystem;
     private WarehouseDto warehouse;
     private LocalDateTime lastMaintenanceDate;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<PackageDto> packages;
 
     // Constructors, getters, and setters

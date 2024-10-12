@@ -6,8 +6,6 @@ public class WarehouseDto {
 
     private Long id;
     private String name;
-    private double latitude;
-    private double longitude;
     private Address address;
     private int capacity;
 
@@ -15,11 +13,9 @@ public class WarehouseDto {
 
     public WarehouseDto() {}
 
-    public WarehouseDto(Long id, String name, double latitude, double longitude, Address address, int capacity) {
+    public WarehouseDto(Long id, String name, Address address, int capacity) {
         this.id = id;
         this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
         this.address = address;
         this.capacity = capacity;
     }
@@ -38,22 +34,6 @@ public class WarehouseDto {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 
     public Address getAddress() {

@@ -42,7 +42,7 @@ class PackageServiceTest {
         testPackage.setName("Sample Package");
         testPackage.setStatus(PackageStatus.IN_TRANSIT);
 
-        testPackageDto = PackageMapper.mapToPackageDto(testPackage);
+        testPackageDto = PackageMapper.mapToPackageDto(testPackage, true);
     }
 
     @Test

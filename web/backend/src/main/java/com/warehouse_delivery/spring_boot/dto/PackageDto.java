@@ -1,5 +1,6 @@
 package com.warehouse_delivery.spring_boot.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.warehouse_delivery.spring_boot.entity.Address;
 import com.warehouse_delivery.spring_boot.enums.PackageStatus;
 
@@ -9,6 +10,8 @@ public class PackageDto {
     private String name;
     private PackageStatus status;
     private Address destination;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private DroneDto assignedDrone;
     private WarehouseDto warehouse;
     private int priority;
