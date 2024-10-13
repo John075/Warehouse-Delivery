@@ -6,6 +6,16 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
+add_message_files(
+        FILES
+        DeliveryStatus.msg
+)
+
+generate_messages(
+        DEPENDENCIES
+        std_msgs
+)
+
 catkin_package(CATKIN_DEPENDS rospy)
 
 include_directories(
