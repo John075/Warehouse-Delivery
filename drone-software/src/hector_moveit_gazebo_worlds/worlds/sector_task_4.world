@@ -3,6 +3,7 @@
   <world name="default">
     <scene>
       <shadows>false</shadows>
+      <audio>false</audio>
       <grid>false</grid>
       <origin_visual>false</origin_visual>
       <sky>
@@ -27,10 +28,6 @@
     <include>
       <uri>model://sector</uri>
       <static>true</static>
-    </include>
-    <include>
-      <uri>model://edrone</uri>
-      <pose>0 0 8.13 0 0 0</pose>
     </include>
     <include>
       <uri>model://delivery</uri>

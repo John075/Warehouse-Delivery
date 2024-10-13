@@ -122,11 +122,11 @@ if __name__ == "__main__":
         print('Setting up for listening to web server...')
         rospy.init_node('web_node', anonymous=True, disable_signals=True)
 
-        pub = rospy.Publisher('/drone/do_action', MoveAction, queue_size=10)
-        rospy.sleep(1)
+        #pub = rospy.Publisher('/drone/do_action', MoveAction, queue_size=10)
+        #rospy.sleep(1)
 
         # TODO: Fetch all drones and creates instances for all
-        drone_1_updater = DroneDataHandler(1, pub)
-        drone_1_updater.start()
+        #drone_1_updater = DroneDataHandler(1, pub)
+        #drone_1_updater.start()
     except rospy.ROSInterruptException:
         pass
