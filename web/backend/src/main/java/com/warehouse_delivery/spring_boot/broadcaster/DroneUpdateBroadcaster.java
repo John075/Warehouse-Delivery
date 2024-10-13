@@ -33,7 +33,7 @@ public class DroneUpdateBroadcaster {
         return emitter;
     }
 
-    public void broadcastUpdate(long droneId, DroneDto droneState) {
+    public void broadcastUpdate(long droneId, String type, Object state) {
         List<SseEmitter> emitters = emitterMap.get(droneId);
         System.out.println("Sending event to " + (emitters == null ? "0" : emitters.size()) + " emitter(s).");
 
@@ -44,7 +44,7 @@ public class DroneUpdateBroadcaster {
         List<SseEmitter> emittersNotListening = new ArrayList<>();
         emitters.forEach(emitter -> {
             try {
-                emitter.send(SseEmitter.event().name("drone-update").data(droneState));
+                emitter.send(SseEmitter.event().name(type).data(state));
             } catch (IOException e) {
                 emittersNotListening.add(emitter);
             }

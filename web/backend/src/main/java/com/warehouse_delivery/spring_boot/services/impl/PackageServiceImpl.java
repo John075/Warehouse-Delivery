@@ -56,7 +56,7 @@ public class PackageServiceImpl implements PackageService {
 
             assignedDrone.getPackages().add(savedPackage);
             droneRepository.save(assignedDrone);
-            broadcaster.broadcastUpdate(assignedDrone.getId(), DroneMapper.mapToDroneDto(assignedDrone, true));
+            broadcaster.broadcastUpdate(assignedDrone.getId(), "drone-package", PackageMapper.mapToPackageDto(savedPackage, true));
         }
 
         return PackageMapper.mapToPackageDto(savedPackage, true);
@@ -80,7 +80,7 @@ public class PackageServiceImpl implements PackageService {
             if (!packageExists) {
                 assignedDrone.getPackages().add(updatedPackage);
                 droneRepository.save(assignedDrone);
-                broadcaster.broadcastUpdate(assignedDrone.getId(), DroneMapper.mapToDroneDto(assignedDrone, true));
+                broadcaster.broadcastUpdate(assignedDrone.getId(), "drone-package", PackageMapper.mapToPackageDto(updatedPackage, true));
             }
         }
         return PackageMapper.mapToPackageDto(updatedPackage, true);

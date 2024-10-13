@@ -22,6 +22,6 @@ public class DroneEntityListener {
     @PostUpdate
     @PostRemove
     public void afterAnyUpdate(Drone drone) {
-        broadcaster.broadcastUpdate(drone.getId(), DroneMapper.mapToDroneDto(drone, true));
+        broadcaster.broadcastUpdate(drone.getId(), "drone-general", DroneMapper.mapToDroneDto(drone, true));
     }
 }
