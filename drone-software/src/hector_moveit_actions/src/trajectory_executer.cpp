@@ -41,15 +41,14 @@ class TrajectoryActionController{
     public:
         TrajectoryActionController(std::string name) : counter(0), action_name(name),
             server_(nh_,name,boost::bind(&TrajectoryActionController::executeCB,this,_1),false),
-            orientation_client_("/action/pose",true){
+            orientation_client_("action/pose",true){
                 ROS_INFO("Entered trajectory action controller!");
                 orientation_client_.waitForServer();
-                ROS_INFO("After orientation client!");
                 empty.linear.x = 0;empty.linear.y = 0; empty.linear.z = 0;
                 empty.angular.x = 0;empty.angular.y = 0;empty.angular.z = 0;
-                vel_pub = nh_.advertise<geometry_msgs::Twist>("/cmd_vel",10);
-                pose_sub = nh_.subscribe<nav_msgs::Odometry>("/ground_truth/state",10,&TrajectoryActionController::poseCallback,this);
-                ros::ServiceClient enable_motors = nh_.serviceClient<hector_uav_msgs::EnableMotors>("/enable_motors");
+                vel_pub = nh_.advertise<geometry_msgs::Twist>("cmd_vel",10);
+                pose_sub = nh_.subscribe<nav_msgs::Odometry>("ground_truth/state",10,&TrajectoryActionController::poseCallback,this);
+                ros::ServiceClient enable_motors = nh_.serviceClient<hector_uav_msgs::EnableMotors>("enable_motors");
                 hector_uav_msgs::EnableMotors srv;
                 srv.request.enable = true;
                 if(enable_motors.call(srv)){
@@ -225,7 +224,7 @@ class TrajectoryActionController{
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "trajectory_executor");
-  TrajectoryActionController controller("/action/trajectory");
+  TrajectoryActionController controller("action/trajectory");
   controller.idle();
   //ros::spin();
   return 0;
