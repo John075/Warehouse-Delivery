@@ -5,6 +5,7 @@
 Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("action/trajectory", true) {
     ROS_INFO("Starting Quadrotor");
     trajectory_client.waitForServer();
+    ROS_INFO("Done waiting for server");
 
     odom_received = false;
     trajectory_received = false;
@@ -13,14 +14,13 @@ Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("action/trajectory
     base_sub = nh.subscribe<nav_msgs::Odometry>("ground_truth/state", 10, &Quadrotor::poseCallback, this);
     plan_sub = nh.subscribe<moveit_msgs::DisplayTrajectory>("move_group/display_planned_path", 1,
                                                             &Quadrotor::planCallback, this);
-
     move_sub = nh.subscribe<warehouse_delivery::MoveAction>("drone/do_action", 1, &Quadrotor::moveCallback, this);
     attach_service = nh.serviceClient<gazebo_ros_link_attacher::Attach>("/link_attacher_node/attach");
-
     move_group.reset(new moveit::planning_interface::MoveGroupInterface(PLANNING_GROUP));
-    robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
-    robot_model::RobotModelPtr kmodel = robot_model_loader.getModel();
 
+    robot_model_loader::RobotModelLoader robot_model_loader("robot_description");
+
+    robot_model::RobotModelPtr kmodel = robot_model_loader.getModel();
     motor_enable_service = nh.serviceClient<hector_uav_msgs::EnableMotors>("enable_motors");
     planning_scene_service = nh.serviceClient<moveit_msgs::GetPlanningScene>("/mg1/get_planning_scene");
 
@@ -30,6 +30,7 @@ Quadrotor::Quadrotor(ros::NodeHandle &nh) : trajectory_client("action/trajectory
 
     start_state.reset(new robot_state::RobotState(move_group->getRobotModel()));
     planning_scene.reset(new planning_scene::PlanningScene(kmodel));
+
 }
 
 void Quadrotor::poseCallback(const nav_msgs::Odometry::ConstPtr &msg) {
@@ -208,9 +209,12 @@ void Quadrotor::takeoff() {
     hector_uav_msgs::EnableMotors srv;
     srv.request.enable = true;
     motor_enable_service.call(srv);
+    ROS_INFO("Enabled motors!");
     while (!odom_received);
+    ROS_INFO("Received odometry info!");
     geometry_msgs::Pose takeoff_pose = odometry_information;
     takeoff_pose.position.z = takeoff_altitude;
+    ROS_INFO("Sending GO command to initial pos");
     go(takeoff_pose.position.x, takeoff_pose.position.y, takeoff_pose.position.z);
     ROS_INFO("Takeoff successful");
 }

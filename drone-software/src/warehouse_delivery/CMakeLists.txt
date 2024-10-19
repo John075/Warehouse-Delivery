@@ -47,3 +47,8 @@ catkin_install_python(PROGRAMS
         test/test_explorer.py   # Path to your script
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}  # Installation destination
 )
+
+catkin_install_python(PROGRAMS
+        scripts/test_namespacing.py   # Path to your script
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}  # Installation destination
+)

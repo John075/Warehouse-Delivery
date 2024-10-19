@@ -13,10 +13,6 @@ int main(int argc, char** argv)
     
     Quadrotor quad(std::ref(node_handle));
 
-    ROS_INFO("Calling takeoff!");
-    quad.takeoff();
-    ROS_INFO("After takeoff!");
-
     ros::waitForShutdown();
     return 0;
 }

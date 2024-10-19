@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<launch>
+  <arg name="namespace2" default="unknown"/>
+  <arg name="use_ground_truth_for_tf" default="true"/>
+  <arg name="debug" default="true" />
+
+    <group ns="$(arg namespace2)">
+      <include file="$(find hector_quadrotor_gazebo)/launch/spawn_quadrotor_with_kinect.launch">
+        <arg name="use_ground_truth_for_tf" value="$(arg use_ground_truth_for_tf)" />
+        <arg name="x" value="0" />
+        <arg name="y" value="0" />
+        <arg name="z" value="8.13" />
+        <arg name="yaw" value="0"/>
+      </include>
+
+    <!-- The name of the parameter under which the URDF is loaded -->
+    <arg name="robot_description" default="robot_description"/>
+
+
+
+    <!-- We do not have a robot connected, so publish fake joint states -->
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+    	<param name="use_gui" value="false"/>
+      <param name="publish_frequency" type="double" value="50.0" />
+      <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
+    </node>
+
+       <!-- Static transform from base_link to camera_depth_frame -->
+     <node pkg="tf2_ros" type="static_transform_publisher" name="camera_depth_tf"
+           args="0.23 0.0 -0.1 0 0 0 base_link mg1/camera_depth_frame" />
+
+     <!-- Static transform from camera_depth_frame to camera_depth_optical_frame -->
+     <node pkg="tf2_ros" type="static_transform_publisher" name="camera_optical_depth_tf"
+           args="0 0 0 -1.5708 0 -1.5708 mg1/camera_depth_frame mg1/camera_depth_optical_frame" />
+
+    <include file="$(find hector_moveit_config)/launch/move_group.launch">
+      <arg name="allow_trajectory_execution" value="true"/>
+      <arg name="fake_execution" value="true"/>
+      <arg name="info" value="false"/>
+      <arg name="debug" value="$(arg debug)"/>
+    </include>
+
+
+
+    <!-- Adjust grid size to have more granular exploration-->
+    <param name="grid_size" type="double" value="13"/>
+    <!-- Visualisation RVIZ -->
+       <node name="trajectory_controller" pkg="hector_moveit_actions" type="trajectory_controller" respawn="false" output="screen" launch-prefix="bash -c 'sleep 10; $0 $@' "/>
+        <node name="delivery_node" pkg="warehouse_delivery" type="delivery_node" respawn="false" output="screen" launch-prefix="bash -c 'sleep 10; $0 $@' ">
+            <param name="/planning_plugin" value="ompl_interface/OMPLPlanner"/>
+            <remap from="delivery_node/ground_truth/state" to="ground_truth/state"/>
+            <remap from="delivery_node/move_group/display_planned_path" to="move_group/display_planned_path"/>
+
+        </node>
+    </group>
+</launch>

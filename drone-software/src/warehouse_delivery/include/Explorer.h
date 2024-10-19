@@ -67,6 +67,7 @@ class Quadrotor{
         bool odom_received, trajectory_received;
         bool isPathValid;
         bool collision;
+        bool takeoff_status;
 
         geometry_msgs::Pose odometry_information;
         std::vector<geometry_msgs::Pose> trajectory;

@@ -15,15 +15,15 @@ class TestDrone(unittest.TestCase):
         rospy.init_node('test_drone', anonymous=True, disable_signals=True)
 
         # Publisher to send move actions
-        self.pub = rospy.Publisher('/drone/do_action', MoveAction, queue_size=10)
+        self.pub = rospy.Publisher('/mg1/delivery_node/drone/do_action', MoveAction, queue_size=10)
         rospy.sleep(1)
           
         # Subscribe to ground truth state to track position
-        rospy.Subscriber('/ground_truth/state', Odometry, self.pose_callback)
+        rospy.Subscriber('/mg1/ground_truth/state', Odometry, self.pose_callback)
 
         # Wait for the first ground truth state message to be received to initialize position
         try:
-            rospy.wait_for_message('/ground_truth/state', Odometry, timeout=5)
+            rospy.wait_for_message('/mg1/ground_truth/state', Odometry, timeout=5)
         except rospy.ROSException:
             self.fail("Timeout while waiting for ground truth state message.")
     
