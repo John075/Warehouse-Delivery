@@ -30,6 +30,9 @@
 		<arg name="moveit_sensor_manager" value="quadrotor" />
 	</include>
 
+	<!-- Start the actual move_group node/action server -->
+	<node name="move_group" launch-prefix="$(arg launch_prefix)" pkg="moveit_ros_move_group" type="move_group" respawn="false" output="screen" args="$(arg command_args)">
+		<!-- Set the display variable, in case OpenGL code is used internally -->
 	<env name="DISPLAY" value="$(optenv DISPLAY :0)" />
 	<param name="allow_trajectory_execution" value="$(arg allow_trajectory_execution)"/>
 	<param name="max_safe_path_cost" value="$(arg max_safe_path_cost)"/>
@@ -39,55 +42,6 @@
 	<param name="planning_scene_monitor/publish_geometry_updates" value="$(arg publish_monitored_planning_scene)" />
 	<param name="planning_scene_monitor/publish_state_updates" value="$(arg publish_monitored_planning_scene)" />
 	<param name="planning_scene_monitor/publish_transforms_updates" value="$(arg publish_monitored_planning_scene)" />
-	<param name="roscpp_log_level" value="DEBUG"/>
-	<!-- Start the actual move_group node/action server -->
-	<node name="move_group" ns="move_group" launch-prefix="$(arg launch_prefix)" pkg="moveit_ros_move_group" type="move_group" respawn="false" output="screen" args="$(arg command_args)">
-		<!-- Set the display variable, in case OpenGL code is used internally -->
-
-		<remap from="move_group/cancel" to="cancel" />
-		<remap from="move_group/display_contacts" to="display_contacts" />
-		<remap from="move_group/display_planned_path" to="display_planned_path" />
-		<remap from="move_group/goal" to="goal" />
-		<remap from="move_group/monitored_planning_scene" to="monitored_planning_scene" />
-		<remap from="move_group/plan_execution/parameter_descriptions" to="plan_execution/parameter_descriptions" />
-		<remap from="move_group/plan_execution/parameter_updates" to="plan_execution/parameter_updates" />
-		<remap from="move_group/result" to="result" />
-		<remap from="move_group/sense_for_plan/parameter_descriptions" to="sense_for_plan/parameter_descriptions" />
-		<remap from="move_group/sense_for_plan/parameter_updates" to="sense_for_plan/parameter_updates" />
-		<remap from="move_group/status" to="status" />
-		<remap from="move_group/trajectory_execution/parameter_descriptions" to="trajectory_execution/parameter_descriptions" />
-		<remap from="move_group/trajectory_execution/parameter_updates" to="trajectory_execution/parameter_updates" />
-		<remap from="move_group/planning_scene_monitor/parameter_descriptions" to="planning_scene_monitor/parameter_descriptions" />
-		<remap from="move_group/planning_scene_monitor/parameter_updates" to="planning_scene_monitor/parameter_updates" />
-		<remap from="move_group/feedback" to="feedback" />
-		<remap from="move_group/get_loggers" to="get_loggers" />
-		<remap from="move_group/load_map" to="load_map" />
-		<remap from="move_group/plan_execution/set_parameters" to="plan_execution/set_parameters" />
-		<remap from="move_group/planning_scene_monitor/set_parameters" to="planning_scene_monitor/set_parameters" />
-		<remap from="move_group/save_map" to="save_map" />
-		<remap from="move_group/sense_for_plan/set_parameters" to="sense_for_plan/set_parameters" />
-		<remap from="move_group/trajectory_execution/set_parameters" to="trajectory_execution/set_parameters" />
-		<remap from="move_group/set_logger_level" to="set_logger_level" />
-	    <remap from="move_group/move_group/allow_trajectory_execution" to="allow_trajectory_execution" />
-        <remap from="move_group/jiggle_fraction" to="jiggle_fraction" />
-        <remap from="move_group/max_safe_path_cost" to="max_safe_path_cost" />
-        <remap from="move_group/plan_execution/max_replan_attempts" to="plan_execution/max_replan_attempts" />
-        <remap from="move_group/plan_execution/record_trajectory_state_frequency" to="plan_execution/record_trajectory_state_frequency" />
-        <remap from="move_group/planning_scene_monitor/publish_geometry_updates" to="planning_scene_monitor/publish_geometry_updates" />
-        <remap from="move_group/planning_scene_monitor/publish_planning_scene" to="planning_scene_monitor/publish_planning_scene" />
-        <remap from="move_group/planning_scene_monitor/publish_planning_scene_hz" to="planning_scene_monitor/publish_planning_scene_hz" />
-        <remap from="move_group/planning_scene_monitor/publish_state_updates" to="planning_scene_monitor/publish_state_updates" />
-        <remap from="move_group/planning_scene_monitor/publish_transforms_updates" to="planning_scene_monitor/publish_transforms_updates" />
-        <remap from="move_group/roscpp_log_level" to="roscpp_log_level" />
-        <remap from="move_group/sense_for_plan/discard_overlapping_cost_sources" to="sense_for_plan/discard_overlapping_cost_sources" />
-        <remap from="move_group/sense_for_plan/max_cost_sources" to="sense_for_plan/max_cost_sources" />
-        <remap from="move_group/sense_for_plan/max_look_attempts" to="sense_for_plan/max_look_attempts" />
-        <remap from="move_group/sense_for_plan/max_safe_path_cost" to="sense_for_plan/max_safe_path_cost" />
-        <remap from="move_group/trajectory_execution/allowed_execution_duration_scaling" to="trajectory_execution/allowed_execution_duration_scaling" />
-        <remap from="move_group/trajectory_execution/allowed_goal_duration_margin" to="trajectory_execution/allowed_goal_duration_margin" />
-        <remap from="move_group/trajectory_execution/allowed_start_tolerance" to="trajectory_execution/allowed_start_tolerance" />
-        <remap from="move_group/trajectory_execution/execution_duration_monitoring" to="trajectory_execution/execution_duration_monitoring" />
-        <remap from="move_group/trajectory_execution/execution_velocity_scaling" to="trajectory_execution/execution_velocity_scaling" />
-        <remap from="move_group/trajectory_execution/wait_for_trajectory_completion" to="trajectory_execution/wait_for_trajectory_completion" />
+		<param name="roscpp_log_level" value="DEBUG"/>
 	</node>
 </launch>
